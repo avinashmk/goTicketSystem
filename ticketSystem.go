@@ -1,7 +1,14 @@
 package main
 
-import ("fmt")
+import (
+	"fmt"
 
-func main () {
+	"github.com/avinashmk/goTicketSystem/control"
+)
+
+func main() {
 	fmt.Println("Hello World")
+	defer control.Stop()
+	control.Init()
+	control.Start()
 }
