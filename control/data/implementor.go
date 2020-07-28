@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -25,6 +26,22 @@ func VerifyUser(userID string) (newUser bool, userDoc types.Users) {
 		}
 	} else {
 		userDoc.Fill(result)
+	}
+	return
+}
+
+// AddUser adds doc to users collection
+func AddUser(userDoc types.Users) (success bool) {
+	var bsonDoc = bson.M{"username": userDoc.Username, "passkey": userDoc.Pwd, "role": userDoc.Role}
+	res, err := usersCollection.InsertOne(context.Background(), bsonDoc)
+	if err != nil {
+		success = false
+		logger.ErrLog.Println("Unable to insert document!")
+		logger.ErrLog.Println(err)
+	} else {
+		success = true
+		id := fmt.Sprintf("%v", res.InsertedID)
+		logger.InfoLog.Println("New document inserted: " + id)
 	}
 	return
 }
