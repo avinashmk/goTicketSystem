@@ -2,27 +2,29 @@ package data
 
 import (
 	"context"
-	"fmt"
-	"log"
 
-	"github.com/avinashmk/goTicketSystem/logger"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+
+	"github.com/avinashmk/goTicketSystem/control/data/types"
+	"github.com/avinashmk/goTicketSystem/logger"
 )
 
-// VerifyCredentials verifies login credentials
-func VerifyCredentials(userID string, pwd string) (validUser bool, userRole string) {
+// VerifyUser verifies login credentials
+func VerifyUser(userID string) (newUser bool, userDoc types.Users) {
+	newUser = false
 	var result bson.M
 	filter := bson.D{{"username", userID}}
 
 	err := usersCollection.FindOne(context.Background(), filter).Decode(&result)
 	if err != nil {
-		log.Fatal(err)
-	}
-
-	if pwd == result["passkey"] {
-		logger.InfoLog.Println("Logged in! ", userID)
-		validUser = true
-		userRole = fmt.Sprintf("%v", result["role"])
+		if err == mongo.ErrNoDocuments {
+			newUser = true
+		} else {
+			logger.ErrLog.Fatalln(err)
+		}
+	} else {
+		userDoc.Fill(result)
 	}
 	return
 }

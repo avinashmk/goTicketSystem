@@ -9,8 +9,8 @@ import (
 
 func main() {
 	fmt.Println("Hello World")
-	defer control.Stop()
 	defer logger.Final()
+	defer control.Stop()
 
 	logger.Init()
 	control.Init()

@@ -54,7 +54,7 @@ func Final() {
 	response, _ := reader.ReadString('\n')
 	response = strings.Replace(response, "\r\n", "", -1)
 	if response != "y" {
-		fmt.Println("Removing..." + fileName)
+		fmt.Println("Removing... " + fileName)
 		if err := os.Remove(fileName); err != nil {
 			log.Fatal(err)
 		}

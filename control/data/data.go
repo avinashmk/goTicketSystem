@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/avinashmk/goTicketSystem/logger"
+
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -14,8 +15,9 @@ const (
 )
 
 var (
-	handlerStarted chan bool = make(chan bool)
-	stopHandler    chan bool = make(chan bool)
+	handlerStarted       chan bool = make(chan bool)
+	stopHandler          chan bool = make(chan bool)
+	stopHandlerCompleted chan bool = make(chan bool)
 
 	// Collections support concurrency.
 	// See: https://github.com/mongodb/mongo-go-driver/blob/master/mongo/collection.go#L30
@@ -34,6 +36,7 @@ func Init() {
 }
 
 func setupHandler() {
+	// TODO: Have a pool of clients for each collection.
 	client, err := mongo.NewClient(options.Client().ApplyURI(mongoDbURL))
 	if err != nil {
 		logger.ErrLog.Println(err)
@@ -55,10 +58,12 @@ func setupHandler() {
 	handlerStarted <- true
 	<-stopHandler
 	logger.InfoLog.Println("setupHandler Shut down")
+	stopHandlerCompleted <- true
 }
 
 // Stop Stops
 func Stop() {
 	logger.InfoLog.Println("Stop")
 	stopHandler <- true
+	<-stopHandlerCompleted
 }
