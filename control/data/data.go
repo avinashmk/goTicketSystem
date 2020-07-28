@@ -2,68 +2,63 @@ package data
 
 import (
 	"context"
-	"fmt"
-	"log"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson"
+	"github.com/avinashmk/goTicketSystem/logger"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+const (
+	mongoDbURL = "mongodb://127.0.0.1:27017"
+)
+
+var (
+	handlerStarted chan bool = make(chan bool)
+	stopHandler    chan bool = make(chan bool)
+
+	// Collections support concurrency.
+	// See: https://github.com/mongodb/mongo-go-driver/blob/master/mongo/collection.go#L30
+	usersCollection *mongo.Collection = nil
+)
+
 // Init Inits
 func Init() {
-	fmt.Println("Data::Init")
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://127.0.0.1:27017"))
+	logger.InfoLog.Println("Init")
+	go setupHandler()
+
+	logger.InfoLog.Println("Waiting for Handler setup...")
+	<-handlerStarted
+
+	logger.InfoLog.Println("Handler up & running!")
+}
+
+func setupHandler() {
+	client, err := mongo.NewClient(options.Client().ApplyURI(mongoDbURL))
 	if err != nil {
-		log.Fatal(err)
+		logger.ErrLog.Println(err)
 	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
-	err = client.Connect(ctx)
-	if err != nil {
-		log.Fatal(err)
+
+	if err = client.Connect(ctx); err != nil {
+		logger.ErrLog.Println(err)
 	}
 
 	db := client.Database("trainTicket")
-	usersCollection := db.Collection("users")
+	usersCollection = db.Collection("users")
+	logger.InfoLog.Println("setupHandler Complete")
 
-	var result bson.M
-	filter := bson.D{{"username", "surya"}}
-	//filter := bson.D{{"hello", "world"}}
-	res := usersCollection.FindOne(context.Background(), filter)
-	err1 := res.Decode(&result)
-	if err1 != nil {
-		log.Fatal(err1)
-	}
-	// do something with result...
-	fmt.Printf("Found document %v\n", result)
-	fmt.Println("hello ", result["passkey"], "!")
-	fmt.Println("Raw bytes: ", res)
-
-	
-}
-
-// VerifyCredentials verifies creds
-func VerifyCredentials(userID string, pwd string) (validUser bool, userRole string) {
-	var result bson.M
-	filter := bson.D{{"username", userID}}
-	res := usersCollection.FindOne(context.Background(), filter)
-	err1 := res.Decode(&result)
-	fmt.Printf("Found result %v\n", result)
-	if err1 != nil {
-		log.Fatal(err1)
-	}
-	passkey := fmt.Sprintf("%v", result["passkey"])
-	if pwd == passkey {
-		validUser = true
-		role := fmt.Sprintf("%v", result["role"])
-		userRole = role
-	}
-	return
+	// Wait as long as the MongoDB connection is needed.
+	// (i.e., span of Program)
+	handlerStarted <- true
+	<-stopHandler
+	logger.InfoLog.Println("setupHandler Shut down")
 }
 
 // Stop Stops
 func Stop() {
-	fmt.Println("Data::Stop")
+	logger.InfoLog.Println("Stop")
+	stopHandler <- true
 }
