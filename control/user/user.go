@@ -1,8 +1,6 @@
 package user
 
 import (
-	"fmt"
-
 	"github.com/avinashmk/goTicketSystem/logger"
 )
 
@@ -18,5 +16,5 @@ func Stop() {
 
 // GetLoginInfo Gets the login info
 func GetLoginInfo() {
-	fmt.Println("Welcome!")
+	logger.InfoLog.Println("Welcome!")
 }

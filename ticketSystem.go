@@ -9,6 +9,7 @@ func main() {
 	defer logger.Final()
 	defer control.Stop()
 
+	// TODO: catch Interrupt/Kill Signals
 	logger.Init()
 	control.Init()
 	control.Start()

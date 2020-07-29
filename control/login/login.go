@@ -1,4 +1,4 @@
-package control
+package login
 
 import (
 	"github.com/avinashmk/goTicketSystem/console"
@@ -7,7 +7,8 @@ import (
 	"github.com/avinashmk/goTicketSystem/logger"
 )
 
-func userLogin() (success bool) {
+// UserLogin logs/registers users.
+func UserLogin() (success bool) {
 	userID := console.GetString("Username")
 	newUser, userDoc := data.VerifyUser(userID)
 	if newUser {
@@ -24,6 +25,7 @@ func userLogin() (success bool) {
 	return
 }
 
+// registerUser registers new user
 func registerUser(userID string) (success bool) {
 	success = false
 	register := console.GetString("Username not found! Register instead?[y/n]")

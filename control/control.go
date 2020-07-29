@@ -3,6 +3,7 @@ package control
 import (
 	"github.com/avinashmk/goTicketSystem/console"
 	"github.com/avinashmk/goTicketSystem/control/data"
+	"github.com/avinashmk/goTicketSystem/control/login"
 	"github.com/avinashmk/goTicketSystem/control/user"
 	"github.com/avinashmk/goTicketSystem/logger"
 )
@@ -19,7 +20,7 @@ func Start() {
 	logger.InfoLog.Println("Start")
 	console.Prompt("Welcome!")
 	defer console.Prompt("Exiting...")
-	if !userLogin() {
+	if !login.UserLogin() {
 		return
 	}
 }

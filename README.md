@@ -6,4 +6,4 @@ Features:
 - Handle concurrent users.
 - Encrypted passwords.
 - MongoDB.
-- <Frontend to be finalised>
+- (Frontend to be finalised)
