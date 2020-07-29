@@ -20,7 +20,6 @@ var (
 	stopHandlerCompleted chan bool = make(chan bool)
 
 	// Collections support concurrency.
-	// See: https://github.com/mongodb/mongo-go-driver/blob/master/mongo/collection.go#L30
 	usersCollection *mongo.Collection = nil
 )
 

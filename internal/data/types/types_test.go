@@ -8,11 +8,12 @@ import (
 
 func TestFill(t *testing.T) {
 	var got Users
-	want := Users{"arey", "ooo", "samba"}
+	want := Users{"arey", "ooo", "samba", "!!!"}
 	data := bson.M{
 		"username": want.Username,
 		"passkey":  want.Pwd,
 		"role":     want.Role,
+		"status":   want.Status,
 	}
 	got.Fill(data)
 	if got != want {

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/avinashmk/goTicketSystem/control"
+	"github.com/avinashmk/goTicketSystem/internal/control"
 	"github.com/avinashmk/goTicketSystem/logger"
 )
 

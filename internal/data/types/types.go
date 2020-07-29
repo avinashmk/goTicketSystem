@@ -11,6 +11,7 @@ type Users struct {
 	Username string
 	Pwd      string
 	Role     string
+	Status   string //TODO: include 'logged' status to enforce one session per user
 }
 
 // Fill fills a type Users struct from a type bson.M data
@@ -18,4 +19,5 @@ func (u *Users) Fill(data bson.M) {
 	u.Username = fmt.Sprintf("%v", data["username"])
 	u.Pwd = fmt.Sprintf("%v", data["passkey"])
 	u.Role = fmt.Sprintf("%v", data["role"])
+	u.Status = fmt.Sprintf("%v", data["status"])
 }

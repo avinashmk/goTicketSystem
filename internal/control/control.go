@@ -2,16 +2,14 @@ package control
 
 import (
 	"github.com/avinashmk/goTicketSystem/console"
-	"github.com/avinashmk/goTicketSystem/control/data"
-	"github.com/avinashmk/goTicketSystem/control/login"
-	"github.com/avinashmk/goTicketSystem/control/user"
+	"github.com/avinashmk/goTicketSystem/internal/data"
+	"github.com/avinashmk/goTicketSystem/internal/login"
 	"github.com/avinashmk/goTicketSystem/logger"
 )
 
 // Init Inits
 func Init() {
 	logger.InfoLog.Println("Init using logger")
-	user.Init()
 	data.Init()
 }
 
@@ -28,7 +26,6 @@ func Start() {
 // Stop Stops
 func Stop() {
 	logger.InfoLog.Println("Stopping...")
-	defer user.Stop()
-	defer data.Stop()
+	data.Stop()
 	defer logger.InfoLog.Println("Stopped")
 }

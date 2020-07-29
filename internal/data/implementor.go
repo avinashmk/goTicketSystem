@@ -7,7 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	"github.com/avinashmk/goTicketSystem/control/data/types"
+	"github.com/avinashmk/goTicketSystem/internal/data/types"
 	"github.com/avinashmk/goTicketSystem/logger"
 )
 
@@ -15,7 +15,10 @@ import (
 func VerifyUser(userID string) (newUser bool, userDoc types.Users) {
 	newUser = false
 	var result bson.M
-	filter := bson.D{{"username", userID}}
+	filter := bson.D{{
+		Key:   "username",
+		Value: userID,
+	}}
 
 	err := usersCollection.FindOne(context.Background(), filter).Decode(&result)
 	if err != nil {
@@ -32,7 +35,12 @@ func VerifyUser(userID string) (newUser bool, userDoc types.Users) {
 
 // AddUser adds doc to users collection
 func AddUser(userDoc types.Users) (success bool) {
-	var bsonDoc = bson.M{"username": userDoc.Username, "passkey": userDoc.Pwd, "role": userDoc.Role}
+	var bsonDoc = bson.M{
+		"username": userDoc.Username,
+		"passkey":  userDoc.Pwd,
+		"role":     userDoc.Role,
+		"status":   userDoc.Status,
+	}
 	res, err := usersCollection.InsertOne(context.Background(), bsonDoc)
 	if err != nil {
 		success = false
