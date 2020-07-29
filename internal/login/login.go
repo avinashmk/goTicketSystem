@@ -16,8 +16,8 @@ func UserLogin() (success bool) {
 	if newUser {
 		success = registerUser(userID)
 	} else {
-		validUser := verifyCredentials(userDoc)
-		if validUser {
+		success = verifyCredentials(userDoc)
+		if success {
 			console.Prompt("Successfully logged in as:" + userID)
 			logger.InfoLog.Println("Logged in as:", userID, " [Role:", userDoc.Role, "]")
 		} else {
@@ -59,8 +59,14 @@ func registerUser(userID string) (success bool) {
 	return
 }
 
-func verifyCredentials(userDoc types.Users) (validUser bool) {
-	validUser = util.Attempt3("Incorrect Password!",
+func verifyCredentials(userDoc types.Users) (verified bool) {
+	verified = false
+	if userDoc.Status == types.LockedStatus {
+		console.Prompt("User ID Locked! Contact @avinashmk, Call +46 769502099")
+		return
+	}
+
+	verified = util.Attempt3("Incorrect Password!",
 		func() bool {
 			cleartext := console.GetString("Password")
 			if pwd.Validate(cleartext, userDoc.Pwd) {
@@ -69,5 +75,18 @@ func verifyCredentials(userDoc types.Users) (validUser bool) {
 			}
 			return false
 		})
+
+	if !verified {
+		lockUser(userDoc)
+	}
 	return
+}
+
+func lockUser(userDoc types.Users) {
+	userDoc.Status = types.LockedStatus
+	if data.UpdateUser(userDoc) {
+		console.Prompt("ACCOUNT LOCKED! Contact @avinashmk, Call +46 769502099")
+	} else {
+		logger.ErrLog.Println("Unable to Lock user account: ", userDoc.Username)
+	}
 }

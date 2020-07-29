@@ -53,3 +53,32 @@ func AddUser(userDoc types.Users) (success bool) {
 	}
 	return
 }
+
+// UpdateUser updates document in users collection
+func UpdateUser(userDoc types.Users) (success bool) {
+	success = true
+	filter := bson.D{{
+		Key:   "username",
+		Value: userDoc.Username,
+	}}
+	update := bson.D{
+		{Key: "$set",
+			Value: bson.D{
+				{
+					Key:   "passkey",
+					Value: userDoc.Pwd,
+				},
+				{
+					Key:   "status",
+					Value: userDoc.Status,
+				},
+			},
+		},
+	}
+	err := usersCollection.FindOneAndUpdate(context.Background(), filter, update).Err()
+	if err != nil {
+		logger.ErrLog.Println("Unable to update: ", err)
+		success = false
+	}
+	return
+}
