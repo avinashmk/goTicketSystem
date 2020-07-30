@@ -62,7 +62,8 @@ func UpdateUser(userDoc types.Users) (success bool) {
 		Value: userDoc.Username,
 	}}
 	update := bson.D{
-		{Key: "$set",
+		{
+			Key: "$set",
 			Value: bson.D{
 				{
 					Key:   "passkey",
