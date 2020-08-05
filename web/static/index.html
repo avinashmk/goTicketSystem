@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Index</title>
+</head>
+
+<body>
+    <style type="text/css">
+        .fieldset-auto-width {
+            display: inline-block;
+        }
+
+        input[type=text],
+        input[type=password] {
+            width: 100%;
+            padding: 5px 10px;
+            margin: 2px 0;
+            box-sizing: border-box;
+            border: 2px solid green;
+            border-radius: 25px;
+        }
+
+        input[type=submit],
+        input[type=reset] {
+            width: 50%;
+            padding: 5px 10px;
+            margin: 2px 0;
+            box-sizing: border-box;
+            border: 2px solid green;
+            border-radius: 25px;
+        }
+    </style>
+
+    <h2>
+        <p style="text-align:center;">
+            Ticket System
+        </p>
+    </h2>
+    <div>
+        <fieldset class="fieldset-auto-width">
+            <legend><strong>Sign In!</strong></legend>
+            <br>
+            <form method="POST" action="/signin">
+                <label>Username: </label><br>
+                <input name="username" type="text" value="" />
+                <br><br>
+                <label>Password: </label><br>
+                <input name="password" type="password" value="" />
+                <br><br>
+                <p style="text-align:center;">
+                    <input type="submit" value="Sign In" />
+                    <input type="reset" value="Reset" />
+                </p>
+            </form>
+        </fieldset>
+    </div>
+</body>
+
+</html>

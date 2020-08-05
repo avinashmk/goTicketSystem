@@ -12,7 +12,7 @@
 *.out
 
 # Log files
-logs_*.txt
+log_*.txt
 
 # Dependency directories (remove the comment below to include it)
 # vendor/

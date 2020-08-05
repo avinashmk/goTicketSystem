@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>menu</title>
+    <style>
+        .fieldset-auto-width {
+            display: inline-block;
+            color: green;
+            border-radius: 5px 15px 5px 15px;
+
+        }
+
+        input[type=submit],
+        input[type=reset] {
+            width: 100%;
+            padding: 5px 10px;
+            margin: 2px 0;
+            box-sizing: border-box;
+            border: 2px solid green;
+            border-radius: 5px 15px 5px 15px;
+            font-weight: bold;
+        }
+
+        legend {
+            color: green;
+            font-weight: bold;
+        }
+
+        label {
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>
+        Ticket System
+    </h2>
+    <p>
+        Logged in as: {{.Gen.UserID}}<br>
+        Role: {{.Gen.Role}}
+    </p>
+    <div>
+        <fieldset class="fieldset-auto-width">
+            <legend>Menu</legend>
+            {{range .Options}}
+            <p>
+            <form method="POST" action={{.Function}}>
+                <input type="submit" value={{.Name}} />
+            </form>
+            </p>
+            {{end}}
+        </fieldset>
+    </div>
+</body>
+
+</html>

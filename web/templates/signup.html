@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>signup</title>
+</head>
+
+<body>
+    <style type="text/css">
+        .fieldset-auto-width {
+            display: inline-block;
+            border-radius: 10px;
+            border-color: green;
+        }
+
+        .err-txt {
+            color: red;
+            font-style: italic;
+        }
+
+        input[type=text],
+        input[type=password] {
+            width: 100%;
+            padding: 5px 10px;
+            margin: 2px 0;
+            box-sizing: border-box;
+            border: 2px solid green;
+            border-radius: 20px;
+        }
+
+        input[type=submit],
+        input[type=reset] {
+            width: 50%;
+            padding: 5px 10px;
+            margin: 2px 0;
+            box-sizing: border-box;
+            border: 2px solid green;
+            border-radius: 5px 15px 5px 15px;
+        }
+
+        legend {
+            color: green;
+            font-weight: bold;
+        }
+
+        label {
+            font-weight: bold;
+        }
+    </style>
+
+    <h2>
+        <p
+            style="text-align:left; color:green; font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif">
+            Ticket System
+        </p>
+    </h2>
+    <div>
+        <form method="POST" action="/signup">
+            <fieldset class="fieldset-auto-width">
+                <legend>Sign Up!</legend>
+                <br>
+                <label>Username: </label><br>
+                <input name="username" type="text" value={{.UserID}} readonly />
+                <br><br>
+                <label>Password: </label><br>
+                <input name="password" type="password" value="" />
+                <br><br>
+                <label>Confirm Password: </label><br>
+                <input name="confirmpassword" type="password" value="" />
+                <p class="err-txt">
+                    {{.Message}}
+                </p>
+                <p style="text-align:center;">
+                    <input type="submit" value="Sign Up!" />
+                    <br>
+                    <input type="reset" value="Reset" />
+                </p>
+            </fieldset>
+        </form>
+    </div>
+</body>
+
+</html>

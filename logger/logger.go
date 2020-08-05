@@ -11,42 +11,75 @@ import (
 	"time"
 )
 
+type iLogger interface {
+	Println(v ...interface{})
+}
+
+type ignoreLogger struct {
+}
+
+const (
+	debugs = true
+)
+
 // Log utility for logging.
 var (
-	InfoLog *log.Logger
-	WarnLog *log.Logger
-	ErrLog  *log.Logger
+	Err   iLogger
+	Warn  iLogger
+	Info  iLogger
+	Debug iLogger
+	Enter iLogger
+	Leave iLogger
 
 	fileName string
 	file     *os.File
 )
 
+func (il *ignoreLogger) Println(v ...interface{}) {
+	// ignore
+}
+
 // Init inits logger
-func Init() {
+func Init() bool {
 	now := time.Now().Unix()
 	nowString := strconv.FormatInt(now, 10)
-	fileName = "logs_" + nowString + ".txt"
+	fileName = "logs/log_" + nowString + ".txt"
 	var err error
 	file, err = os.OpenFile(fileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
 		log.Fatal(err)
 	}
-	InfoLog = log.New(file, "[IN] ", log.Ldate|log.Ltime|log.Lshortfile)
-	WarnLog = log.New(file, "[WA] ", log.Ldate|log.Ltime|log.Lshortfile)
-	ErrLog = log.New(file, "[ER] ", log.Ldate|log.Ltime|log.Lshortfile)
+
+	logFlags := log.Ltime | log.Lshortfile
+
+	Err = log.New(file, "[ER] ", logFlags)
+	Warn = log.New(file, "[WA] ", logFlags)
+	Info = log.New(file, "[IN] ", logFlags)
+	if debugs {
+		Debug = log.New(file, "[DE] ", logFlags)
+		Enter = log.New(file, "[DE] >>> ", logFlags)
+		Leave = log.New(file, "[DE] <<< ", logFlags)
+	} else {
+		dummyLogger := new(ignoreLogger)
+		Debug = dummyLogger
+		Enter = dummyLogger
+		Leave = dummyLogger
+	}
+
+	return true
 }
 
-// Final Dumps logs to console
-func Final() {
+// Finalize Dumps logs to console
+func Finalize() {
 	if err := file.Close(); err != nil {
-		ErrLog.Println(err)
+		Err.Println(err)
 	}
 
 	fmt.Println("\n\nLogging info:")
 	if dat, err := ioutil.ReadFile(fileName); err == nil {
 		fmt.Print(string(dat))
 	} else {
-		ErrLog.Println(err)
+		Err.Println(err)
 	}
 
 	fmt.Print("\nKeep log file?: ")
