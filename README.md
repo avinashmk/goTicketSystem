@@ -7,7 +7,7 @@ Features:
 - Encrypted passwords.
 - MongoDB.
 
-Structure:
+Structure:  
    Repo
    |
    |---command
