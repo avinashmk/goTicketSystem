@@ -1,9 +1,10 @@
-package handler
+package server
 
 import (
 	"net/http"
 
 	"github.com/avinashmk/goTicketSystem/internal/consts"
+	"github.com/avinashmk/goTicketSystem/internal/server/handler"
 	"github.com/avinashmk/goTicketSystem/logger"
 )
 
@@ -18,7 +19,6 @@ var (
 	//connections      map[int]*Session
 	server *http.Server
 	//stopMonitorConnections chan bool // re-usable channel to indicate both 'stop' & 'stop complete' signal
-
 )
 
 // Init inits
@@ -75,12 +75,19 @@ func setupHandlers() {
 
 	fileServer := http.FileServer(http.Dir("./web/static"))
 	http.Handle("/", fileServer)
-	http.HandleFunc(consts.SignInFunc, signinHandler)
-	http.HandleFunc(consts.SignUpFunc, signupHandler)
-	http.HandleFunc(consts.SearchTrainOptionFunc, searchtrainHandler)
-	http.HandleFunc(consts.MakeReservOptionFunc, makereservationHandler)
-	http.HandleFunc(consts.CancelReservOptionFunc, cancelreservationHandler)
-	http.HandleFunc(consts.ViewReservOptionFunc, viewreservationHandler)
+	http.HandleFunc(consts.SignInFunc, handler.Signin)
+	http.HandleFunc(consts.SignUpFunc, handler.Signup)
+
+	http.HandleFunc(consts.SearchTrainPostAction, handler.SearchTrain)
+	http.HandleFunc(consts.MakeReservPostAction, handler.MakeReservation)
+	http.HandleFunc(consts.CancelReservPostAction, handler.CancelReservation)
+	http.HandleFunc(consts.ViewReservPostAction, handler.ViewReservation)
+
+	http.HandleFunc(consts.AddTrainSchemaFormPostAction, handler.AddTrainSchemaForm)
+	http.HandleFunc(consts.AddTrainSchemaPostAction, handler.AddTrainSchema)
+	http.HandleFunc(consts.RemoveTrainSchemaPostAction, handler.RemoveTrainSchema)
+	http.HandleFunc(consts.ViewTrainSchemaPostAction, handler.ViewTrainSchema)
+	http.HandleFunc(consts.UpdateTrainSchemaPostAction, handler.UpdateTrainSchema)
 }
 
 // func handleNewConnection() (result bool) {

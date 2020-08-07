@@ -6,14 +6,16 @@ import (
 	"net/http"
 
 	"github.com/avinashmk/goTicketSystem/internal/model"
+	"github.com/avinashmk/goTicketSystem/internal/server/session"
 	"github.com/avinashmk/goTicketSystem/internal/store"
 	"github.com/avinashmk/goTicketSystem/logger"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func signinHandler(w http.ResponseWriter, r *http.Request) {
-	logger.Enter.Println("signinHandler()")
-	defer logger.Leave.Println("signinHandler()")
+// Signin Signin
+func Signin(w http.ResponseWriter, r *http.Request) {
+	logger.Enter.Println("Signin()")
+	defer logger.Leave.Println("Signin()")
 
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method is not supported.", http.StatusNotFound)
@@ -43,6 +45,7 @@ func signinHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		gen.Role = user.Role
 		if user.Authenticate(password) {
+			session.SetToken(w, gen)
 			t, err := template.ParseFiles("./web/templates/menu.html")
 			if err != nil {
 				logger.Err.Println("Unable to parse template ", err)

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>addtrainschema</title>
+    <style type="text/css">
+        .fieldset-auto-width {
+            display: inline-block;
+            border-radius: 10px;
+            border-color: green;
+        }
+
+        .err-txt {
+            color: red;
+            font-style: italic;
+        }
+
+        .bold-green {
+            color: green;
+            font-weight: bold;
+        }
+
+        input[type=text] {
+            width: 100%;
+            padding: 5px 10px;
+            margin: 2px 0;
+            box-sizing: border-box;
+            border: 2px solid green;
+            border-radius: 20px;
+        }
+
+        input[type=submit],
+        input[type=reset] {
+            width: 100%;
+            padding: 5px 10px;
+            margin: 2px 0;
+            box-sizing: border-box;
+            border: 2px solid green;
+            border-radius: 5px 15px 5px 15px;
+            text-align: center;
+        }
+
+        input[type=button] {
+            /* padding: 5px 5px;
+            margin: 2px 2px; */
+            box-sizing: border-box;
+            /* border: 2px solid green; */
+            border-radius: 5px 15px 5px 15px;
+            text-align: center;
+        }
+
+        legend {
+            color: green;
+            font-weight: bold;
+        }
+
+        .box-a {
+            width: 100px;
+            padding: 1px 1px;
+            border: 1px solid green;
+            margin: 1px 1px;
+            float: left;
+            text-align: center;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body style="font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif">
+    <h2>
+        <p style="color:green;">
+            Ticket System
+        </p>
+    </h2>
+    <p>
+        Logged in as: {{.UserID}}<br>
+        Role: {{.Role}}
+    </p>
+    <div>
+        <fieldset class="fieldset-auto-width">
+            <legend>Add a Train Schema</legend>
+            <br>
+            <form method="POST" action="/addtrainschemaform">
+                <label class="bold-green">Train Number:</label>
+                <input name="TrainNumber" type="text" value="" />
+                <br><br>
+
+                <label class="bold-green">Train Name:</label>
+                <input name="TrainName" type="text" value="" />
+                <br><br>
+
+                <label class="bold-green">Frequency:</label>
+                <br>
+                <input type="checkbox" name="Mon">
+                <label>Monday</label>
+                <br>
+                <input type="checkbox" name="Tue">
+                <label>Tuesday</label>
+                <br>
+                <input type="checkbox" name="Wed">
+                <label>Wednesday</label>
+                <br>
+                <input type="checkbox" name="Thu">
+                <label>Thursday</label>
+                <br>
+                <input type="checkbox" name="Fri">
+                <label>Friday</label>
+                <br>
+                <input type="checkbox" name="Sat">
+                <label>Saturday</label>
+                <br>
+                <input type="checkbox" name="Sun">
+                <label>Sunday</label>
+                <br><br>
+
+                <label class="bold-green">Tickets Available:</label><br>
+                <span style="font-weight: bold;">
+                    <div class="box-a">Class</div>
+                    <div class="box-a">Tickets</div>
+                    <div class="box-a">Fare </div>
+                    <div style="clear:left"></div>
+                </span>
+                <div id="multi-container">
+                    <input class="box-a" name="ticket[1][class]">
+                    <input class="box-a" name="ticket[1][count]">
+                    <input class="box-a" name="ticket[1][fare]">
+                    <div style="clear:left"></div>
+                </div>
+                <input type="button" style="font-style: italic;" value="Add Row" onclick="addTicketRow()" />
+                <br><br>
+
+                <label class="bold-green">Stops:</label><br>
+                <span style="font-weight: bold;">
+                    <div class="box-a">Position</div>
+                    <div class="box-a">Station Name</div>
+                    <div class="box-a">Arrival</div>
+                    <div class="box-a">Departure</div>
+                    <div style="clear:left"></div>
+                </span>
+                <div id="multi-container">
+                    <input class="box-a" name="stop[1][position]">
+                    <input class="box-a" name="stop[1][station]">
+                    <input class="box-a" name="stop[1][arrival]">
+                    <input class="box-a" name="stop[1][departure]">
+                    <div style="clear:left"></div>
+                </div>
+                <input type="button" style="font-style: italic;" value="Add Row" onclick="addStopRow()" />
+
+                <br><br>
+                <input type="submit" value="Add Train" />
+            </form>
+        </fieldset>
+    </div>
+    <script>
+        let i = 2;
+        function addTicketRow() {
+            let template = `
+                    <input class="box-a" name="ticket[${i}][class]">
+                    <input class="box-a" name="ticket[${i}][count]">
+                    <input class="box-a" name="ticket[${i}][fare]">
+                    <div style="clear:left"></div>
+                    `;
+            let container = document.getElementById('multi-container');
+            let div = document.createElement('div');
+            div.innerHTML = template;
+            container.appendChild(div);
+            i++;
+        }
+
+        let j = 2;
+        function addStopRow() {
+            let template = `
+                    <input class="box-a" name="stop[${j}][position]">
+                    <input class="box-a" name="stop[${j}][station]">
+                    <input class="box-a" name="stop[${j}][arrival]">
+                    <input class="box-a" name="stop[${j}][departure]">
+                    <div style="clear:left"></div>
+                    `;
+            let container = document.getElementById('multi-container');
+            let div = document.createElement('div');
+            div.innerHTML = template;
+            container.appendChild(div);
+            i++;
+        }
+    </script>
+</body>
+
+</html>

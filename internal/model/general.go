@@ -19,6 +19,7 @@ func MakeGeneral(params ...string) (gen *General) {
 		gen.Role = params[1]
 	} else {
 		gen.Role = consts.UserRole
+		return
 	}
 	if len(params) > 2 {
 		gen.Message = params[2]

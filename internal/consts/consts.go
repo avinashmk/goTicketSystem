@@ -12,20 +12,40 @@ const (
 	LockedStatus = "Locked"
 )
 
-// Handlers vs Names
+// POST Action vs UI Names
 const (
 	SignInFunc = "/signin"
 	SignUpFunc = "/signup"
 
-	SearchTrainOptionFunc = "/searchtrain"
+	SearchTrainPostAction = "/searchtrain"
 	SearchTrainOptionName = "Search Trains"
 
-	MakeReservOptionFunc = "/makereservation"
+	MakeReservPostAction = "/makereservation"
 	MakeReservOptionName = "Make a Reservation"
 
-	CancelReservOptionFunc = "/cancelreservation"
+	CancelReservPostAction = "/cancelreservation"
 	CancelReservOptionName = "Cancel a Reservation"
 
-	ViewReservOptionFunc = "/viewreservation"
-	ViewReservOptionName = "View my Reservations"
+	ViewReservPostAction = "/viewreservation"
+	ViewReservOptionName = "View Reservations"
+
+	// Admin specific Options
+	AddTrainSchemaFormPostAction = "/addtrainschemaform"
+	AddTrainSchemaPostAction     = "/addtrainschema"
+	AddTrainSchemaOptionName     = "Add Train Schema"
+
+	RemoveTrainSchemaPostAction = "/removetrainschema"
+	RemoveTrainSchemaOptionName = "Remove Train Schema"
+
+	ViewTrainSchemaPostAction = "/viewtrainschema"
+	ViewTrainSchemaOptionName = "View Train Schema"
+
+	UpdateTrainSchemaPostAction = "/updatetrainschema"
+	UpdateTrainSchemaOptionName = "Update Train Schema"
+)
+
+// Server specific
+const (
+	SessionTokenCookie = "session_token"
+	UserIDCookie       = "user_id"
 )

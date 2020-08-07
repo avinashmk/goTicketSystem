@@ -22,22 +22,43 @@ func MakeMainMenu(gen *General) (menu *Menu) {
 		Gen: gen,
 		Options: []Option{
 			{
-				Function: consts.SearchTrainOptionFunc,
+				Function: consts.SearchTrainPostAction,
 				Name:     consts.SearchTrainOptionName,
 			},
 			{
-				Function: consts.MakeReservOptionFunc,
+				Function: consts.MakeReservPostAction,
 				Name:     consts.MakeReservOptionName,
 			},
 			{
-				Function: consts.CancelReservOptionFunc,
+				Function: consts.CancelReservPostAction,
 				Name:     consts.CancelReservOptionName,
 			},
 			{
-				Function: consts.ViewReservOptionFunc,
+				Function: consts.ViewReservPostAction,
 				Name:     consts.ViewReservOptionName,
 			},
 		},
+	}
+
+	if gen.Role == consts.AdminRole {
+		menu.Options = append(menu.Options,
+			Option{
+				Function: consts.AddTrainSchemaPostAction,
+				Name:     consts.AddTrainSchemaOptionName,
+			},
+			Option{
+				Function: consts.RemoveTrainSchemaPostAction,
+				Name:     consts.RemoveTrainSchemaOptionName,
+			},
+			Option{
+				Function: consts.ViewTrainSchemaPostAction,
+				Name:     consts.ViewTrainSchemaOptionName,
+			},
+			Option{
+				Function: consts.UpdateTrainSchemaPostAction,
+				Name:     consts.UpdateTrainSchemaOptionName,
+			},
+		)
 	}
 	return
 }

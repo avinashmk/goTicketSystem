@@ -24,39 +24,48 @@ Structure:
    |---internal  
    |   |  
    |   |---consts  
+   |   |   |  
+   |   |   |---consts.go: Holds all hard-coded values in one place.  
+   |   |  
+   |   |---core  
+   |   |   |  
+   |   |   |---core.go: Starts core processes -- store(for db),  
+   |   |                                         servercontrol(for server connections),  
+   |   |                                         housekeeping(for maintenance).  
+   |   |  
+   |   |---housekeeping  
+   |   |   |  
+   |   |   |---housekeeping.go:  
+   |   |  
+   |   |---model  
+   |   |   |  
+   |   |   |---general.go:  
+   |   |   |---menu.go:  
+   |   |  
+   |   |---server  
+   |   |   |---server.go: Starts up web server and sets up all handlers  
+   |   |   |---session  
+   |   |   |   |  
+   |   |   |   |---session.go:  
+   |   |   |  
+   |   |   |---handler  
+   |   |       |  
+   |   |       |---common.go:  
+   |   |       |---signin.go:  
+   |   |       |---signup.go:  
+   |   |       |---searchtrain.go:  
+   |   |       |---makereservation.go:  
+   |   |       |---viewreservation.go:  
+   |   |       |---cancelreservation.go:  
+   |   |       |---addtrainschema.go:  
+   |   |       |---removetrainschema.go:  
+   |   |       |---updatetrainschema.go:  
+   |   |       |---viewtrainschema.go:  
+   |   |  
+   |   |---store  
    |       |  
-   |       |---consts.go: Holds all hard-coded values in one place.  
-   |  
-   |---core  
-   |   |  
-   |   |---core.go: Starts core processes -- store(for db),  
-   |                                         handler(for server connections),  
-   |                                         housekeeping(for maintenance).  
-   |  
-   |---handler  
-   |   |  
-   |   |---handlercontrol.go  
-   |   |---common.go:  
-   |   |---signin.go:  
-   |   |---signup.go:  
-   |   |---searchtrain.go:  
-   |   |---makereservation.go:  
-   |   |---viewreservation.go:  
-   |   |---canclereservation.go:  
-   |  
-   |---housekeeping  
-   |   |  
-   |   |---housekeeping.go:  
-   |  
-   |---model  
-   |   |  
-   |   |---general.go  
-   |   |---menu.go  
-   |  
-   |---store  
-   |   |  
-   |   |---store.go  
-   |   |---userdoc.go  
+   |       |---store.go:  
+   |       |---userdoc.go:  
    |  
    |---logger  
    |   |  
@@ -73,6 +82,7 @@ Structure:
    |       |---menu.html  
    |       |---signin.html  
    |       |---signup.html  
+   |       |---addtrainschemaform.html  
    |  
    |---util  
    |   |  

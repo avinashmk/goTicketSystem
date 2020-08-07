@@ -7,9 +7,10 @@ import (
 	"github.com/avinashmk/goTicketSystem/logger"
 )
 
-func viewreservationHandler(w http.ResponseWriter, r *http.Request) {
-	logger.Enter.Println("viewreservationHandler()")
-	defer logger.Leave.Println("viewreservationHandler()")
+// UpdateTrainSchema UpdateTrainSchema
+func UpdateTrainSchema(w http.ResponseWriter, r *http.Request) {
+	logger.Enter.Println("UpdateTrainSchema()")
+	defer logger.Leave.Println("UpdateTrainSchema()")
 
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method is not supported.", http.StatusNotFound)
@@ -19,5 +20,5 @@ func viewreservationHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "ParseForm() err: %v", err)
 		return
 	}
-	fmt.Fprintf(w, "viewreservationHandler got!\n")
+	fmt.Fprintf(w, "UpdateTrainSchema got!\n")
 }

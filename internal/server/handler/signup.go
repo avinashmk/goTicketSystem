@@ -10,9 +10,10 @@ import (
 	"github.com/avinashmk/goTicketSystem/logger"
 )
 
-func signupHandler(w http.ResponseWriter, r *http.Request) {
-	logger.Enter.Println("signupHandler()")
-	defer logger.Leave.Println("signupHandler()")
+// Signup Signup
+func Signup(w http.ResponseWriter, r *http.Request) {
+	logger.Enter.Println("Signup()")
+	defer logger.Leave.Println("Signup()")
 
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method is not supported.", http.StatusNotFound)
@@ -42,6 +43,7 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Unable to Register: Internal Error Occurred", http.StatusInternalServerError)
 		} else {
 			if user.RegisterUser() {
+				// session.SetToken(w, gen)
 				t, err := template.ParseFiles("./web/templates/menu.html")
 				if err != nil {
 					logger.Err.Println("Unable to parse template ", err)

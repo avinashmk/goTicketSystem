@@ -7,9 +7,10 @@ import (
 	"github.com/avinashmk/goTicketSystem/logger"
 )
 
-func cancelreservationHandler(w http.ResponseWriter, r *http.Request) {
-	logger.Enter.Println("cancelreservationHandler()")
-	defer logger.Leave.Println("cancelreservationHandler()")
+// ViewTrainSchema ViewTrainSchema
+func ViewTrainSchema(w http.ResponseWriter, r *http.Request) {
+	logger.Enter.Println("ViewTrainSchema()")
+	defer logger.Leave.Println("ViewTrainSchema()")
 
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method is not supported.", http.StatusNotFound)
@@ -19,5 +20,5 @@ func cancelreservationHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "ParseForm() err: %v", err)
 		return
 	}
-	fmt.Fprintf(w, "cancelreservationHandler got!\n")
+	fmt.Fprintf(w, "ViewTrainSchema got!\n")
 }

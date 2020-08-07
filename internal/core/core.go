@@ -5,8 +5,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/avinashmk/goTicketSystem/internal/handler"
 	"github.com/avinashmk/goTicketSystem/internal/housekeeping"
+	"github.com/avinashmk/goTicketSystem/internal/server"
 	"github.com/avinashmk/goTicketSystem/internal/store"
 	"github.com/avinashmk/goTicketSystem/logger"
 )
@@ -25,9 +25,9 @@ func Start() (result bool) {
 	if sInit {
 		hkInit := housekeeping.Init()
 		if hkInit {
-			hInit := handler.Init()
+			hInit := server.Init()
 			if hInit {
-				result = handler.Run()
+				result = server.Run()
 			}
 		}
 	}
@@ -38,7 +38,7 @@ func Start() (result bool) {
 // Stop Stops
 func Stop() {
 	logger.Debug.Println("Stopping...")
-	handler.Finalize()
+	server.Finalize()
 	housekeeping.Finalize()
 	store.Finalize()
 	logger.Info.Println("Stopped")
