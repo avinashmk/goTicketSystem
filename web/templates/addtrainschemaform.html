@@ -30,22 +30,31 @@
             border-radius: 20px;
         }
 
-        input[type=submit],
-        input[type=reset] {
-            width: 100%;
+        .postbuttons {
+            width: auto;
             padding: 5px 10px;
             margin: 2px 0;
             box-sizing: border-box;
             border: 2px solid green;
             border-radius: 5px 15px 5px 15px;
             text-align: center;
+            font-weight: bold;
         }
 
-        input[type=button] {
-            /* padding: 5px 5px;
-            margin: 2px 2px; */
+
+        .signoff {
+            width: auto;
+            padding: 5px 10px;
+            margin: 2px 0;
             box-sizing: border-box;
-            /* border: 2px solid green; */
+            border: 2px solid red;
+            border-radius: 15px 5px 15px 5px;
+            font-weight: bold;
+        }
+
+        .buttons {
+            box-sizing: border-box;
+            border: 1px solid green;
             border-radius: 5px 15px 5px 15px;
             text-align: center;
         }
@@ -121,13 +130,14 @@
                     <div class="box-a">Fare </div>
                     <div style="clear:left"></div>
                 </span>
-                <div id="multi-container">
+                <div id="ticket-container">
                     <input class="box-a" name="ticket[1][class]">
                     <input class="box-a" name="ticket[1][count]">
                     <input class="box-a" name="ticket[1][fare]">
                     <div style="clear:left"></div>
                 </div>
-                <input type="button" style="font-style: italic;" value="Add Row" onclick="addTicketRow()" />
+                <input class="buttons" type="button" style="font-style: italic;" value="Add Row"
+                    onclick="addTicketRow()" />
                 <br><br>
 
                 <label class="bold-green">Stops:</label><br>
@@ -138,20 +148,34 @@
                     <div class="box-a">Departure</div>
                     <div style="clear:left"></div>
                 </span>
-                <div id="multi-container">
+                <div id="stops-container">
                     <input class="box-a" name="stop[1][position]">
-                    <input class="box-a" name="stop[1][station]">
-                    <input class="box-a" name="stop[1][arrival]">
+                    <input class="box-a" name="stop[1][station]" placeholder="Origin">
+                    <input class="box-a" name="stop[1][arrival]" placeholder="Not Applicable" readonly>
                     <input class="box-a" name="stop[1][departure]">
                     <div style="clear:left"></div>
+                    <input class="box-a" name="stop[2][position]">
+                    <input class="box-a" name="stop[2][station]" placeholder="Destination">
+                    <input class="box-a" name="stop[2][arrival]">
+                    <input class="box-a" name="stop[2][departure]" placeholder="Not Applicable" readonly>
+                    <div style="clear:left"></div>
                 </div>
-                <input type="button" style="font-style: italic;" value="Add Row" onclick="addStopRow()" />
+                <input class="buttons" type="button" style="font-style: italic;" value="Add Intermediate Stops"
+                    onclick="addStopRow()" />
 
-                <br><br>
-                <input type="submit" value="Add Train" />
+                <p class="err-txt">
+                    {{.Message}}
+                </p>
+                <input class="postbuttons" type="submit" value="Add Train" /><br>
+                <input class="postbuttons" type="reset" value="Clear all fields" />
             </form>
         </fieldset>
+        <br><br>
+        <form method="POST" action="/signoff">
+            <input class="signoff" type="submit" value="Signoff" />
+        </form>
     </div>
+
     <script>
         let i = 2;
         function addTicketRow() {
@@ -161,14 +185,14 @@
                     <input class="box-a" name="ticket[${i}][fare]">
                     <div style="clear:left"></div>
                     `;
-            let container = document.getElementById('multi-container');
+            let container = document.getElementById('ticket-container');
             let div = document.createElement('div');
             div.innerHTML = template;
             container.appendChild(div);
             i++;
         }
 
-        let j = 2;
+        let j = 3;
         function addStopRow() {
             let template = `
                     <input class="box-a" name="stop[${j}][position]">
@@ -177,7 +201,7 @@
                     <input class="box-a" name="stop[${j}][departure]">
                     <div style="clear:left"></div>
                     `;
-            let container = document.getElementById('multi-container');
+            let container = document.getElementById('stops-container');
             let div = document.createElement('div');
             div.innerHTML = template;
             container.appendChild(div);

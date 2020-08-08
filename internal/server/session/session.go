@@ -4,72 +4,69 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/avinashmk/goTicketSystem/internal/consts"
 	"github.com/avinashmk/goTicketSystem/internal/model"
 	"github.com/avinashmk/goTicketSystem/logger"
-
 	"golang.org/x/crypto/bcrypt"
 )
 
-// sessionData contains sessions sessionData
-type sessionData struct {
-	gen   *model.General
-	token string
+// Session contains sessions Session
+type Session struct {
+	Gen        model.General
+	tokenValue string
 }
 
 var (
-	// ActiveSessions contains required sessionData for all sessions against userIDs
-	ActiveSessions = make(map[string]sessionData)
+	// activeSessions contains required Session for all sessions against userIDs
+	activeSessions = make(map[string]Session)
+	asMux          sync.Mutex
 )
 
-// SetToken sets Tokens
-func SetToken(w http.ResponseWriter, user *model.General) (success bool) {
-	logger.Enter.Println("SetToken()")
-	defer logger.Leave.Println("SetToken()")
+// New creates new Session
+func New(w http.ResponseWriter, g model.General) Session {
+	logger.Enter.Println("NewSession()")
+	defer logger.Leave.Println("NewSession()")
 
-	if _, alreadyExists := ActiveSessions[user.UserID]; alreadyExists {
-		success = false
-	} else {
-		now := time.Now().String()
-		id := now + user.UserID
-		token := generateToken(id)
-		expiry := time.Now().Add(121 * time.Second)
-		http.SetCookie(w, &http.Cookie{
-			Name:    consts.SessionTokenCookie,
-			Value:   token,
-			Expires: expiry,
-		})
-		http.SetCookie(w, &http.Cookie{
-			Name:    consts.UserIDCookie,
-			Value:   user.UserID,
-			Expires: expiry,
-		})
-		ActiveSessions[user.UserID] = sessionData{
-			gen:   user,
-			token: token,
-		}
-		success = true
+	s := Session{
+		Gen:        g,
+		tokenValue: generateToken(g.UserID),
 	}
-	return
+	s.setCookies(w)
+
+	asMux.Lock()
+	activeSessions[g.UserID] = s
+	asMux.Unlock()
+	return s
 }
 
-// GetToken sets Tokens
-func GetToken(r *http.Request) (gen *model.General, httpStatus int) {
-	logger.Enter.Println("GetToken()")
-	defer logger.Leave.Println("GetToken()")
+// Get sets Tokens
+func Get(r *http.Request) (s Session, httpStatus int) {
+	logger.Enter.Println("Get()")
+	defer logger.Leave.Println("Get()")
 	httpStatus = http.StatusOK
-	userCookie, err := r.Cookie(consts.UserIDCookie)
-	if err == nil {
-		if record, found := ActiveSessions[userCookie.Value]; found {
-			tokenCookie, err1 := r.Cookie(consts.SessionTokenCookie)
-			if err1 == nil {
-				if tokenCookie.Value == record.token {
-					gen = record.gen
+
+	if userCookie, err := r.Cookie(consts.UserIDCookie); err == nil {
+		logger.Debug.Println("User from Cookie: ", userCookie.Value)
+
+		var found bool
+		asMux.Lock()
+		s, found = activeSessions[userCookie.Value]
+		asMux.Unlock()
+		if found {
+			logger.Debug.Println("activeSessions found: ", s.tokenValue)
+
+			if tokenCookie, err1 := r.Cookie(consts.SessionTokenCookie); err1 == nil {
+				logger.Debug.Println("Token from cookie: ", tokenCookie.Value)
+
+				if tokenCookie.Value == s.tokenValue {
+					// Success! Authentic request.
+					logger.Debug.Println("Got session token for: ", s.Gen.UserID)
 				}
 			} else {
-				if err == http.ErrNoCookie {
+				if err1 == http.ErrNoCookie {
 					// If the cookie is not set, return an unauthorized status
 					httpStatus = http.StatusUnauthorized
 				} else {
@@ -92,26 +89,82 @@ func GetToken(r *http.Request) (gen *model.General, httpStatus int) {
 	return
 }
 
-// UpdateToken sets Tokens
-func UpdateToken() {
-	logger.Enter.Println("UpdateToken()")
-	defer logger.Leave.Println("UpdateToken()")
+// Refresh sets Tokens
+func (s *Session) Refresh(w http.ResponseWriter) (success bool) {
+	logger.Enter.Println("Refresh()")
+	defer logger.Leave.Println("Refresh()")
+	logger.Debug.Println("Refresh session token for: ", s.Gen.UserID)
+
+	refreshSession := Session{
+		Gen:        s.Gen,
+		tokenValue: generateToken(s.Gen.UserID),
+	}
+	refreshSession.setCookies(w)
+
+	asMux.Lock()
+	activeSessions[s.Gen.UserID] = refreshSession
+	asMux.Unlock()
+
+	return true
 }
 
-// RemoveToken sets Tokens
-func RemoveToken() {
-	logger.Enter.Println("RemoveToken()")
-	defer logger.Leave.Println("RemoveToken()")
+// Close clears all session data and deletes cookies.
+func (s *Session) Close(w http.ResponseWriter) {
+	logger.Enter.Println("Close()")
+	defer logger.Leave.Println("Close()")
+
+	asMux.Lock()
+	delete(activeSessions, s.Gen.UserID)
+	asMux.Unlock()
+
+	http.SetCookie(w, &http.Cookie{
+		Name:    consts.SessionTokenCookie,
+		Value:   s.tokenValue,
+		Expires: time.Now().Add(1 * time.Second),
+		MaxAge:  1,
+	})
+	http.SetCookie(w, &http.Cookie{
+		Name:    consts.UserIDCookie,
+		Expires: time.Now().Add(1 * time.Second),
+		MaxAge:  1,
+	})
 }
 
-func generateToken(id string) string {
+func (s *Session) setCookies(w http.ResponseWriter) {
+	logger.Enter.Println("setCookies()")
+	defer logger.Leave.Println("setCookies()")
+
+	expiry := time.Now().Add(121 * time.Second)
+	http.SetCookie(w, &http.Cookie{
+		Name:     consts.SessionTokenCookie,
+		Value:    s.tokenValue,
+		Expires:  expiry,
+		MaxAge:   120,
+		HttpOnly: true,
+	})
+	http.SetCookie(w, &http.Cookie{
+		Name:     consts.UserIDCookie,
+		Value:    s.Gen.UserID,
+		Expires:  expiry,
+		MaxAge:   120,
+		HttpOnly: true,
+	})
+	logger.Debug.Println("Cookie set: ", s.tokenValue)
+}
+
+func generateToken(userid string) string {
+	logger.Enter.Println("generateToken()")
+	defer logger.Leave.Println("generateToken()")
+
+	now := time.Now().String()
+	id := userid + now
 	hash, err := bcrypt.GenerateFromPassword([]byte(id), bcrypt.DefaultCost)
 	if err != nil {
 		logger.Err.Println("Unable to generate hash.")
 	}
-	// fmt.Println("Hash to store:", string(hash))
-
 	hasher := md5.New()
 	hasher.Write(hash)
-	return hex.EncodeToString(hasher.Sum(nil))
+	t := hex.EncodeToString(hasher.Sum(nil))
+	logger.Debug.Println("Generated token: ", t)
+	return t
 }

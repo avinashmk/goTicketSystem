@@ -52,11 +52,11 @@ func Init() bool {
 
 	logFlags := log.Ltime | log.Lshortfile
 
-	Err = log.New(file, "[ER] ", logFlags)
-	Warn = log.New(file, "[WA] ", logFlags)
-	Info = log.New(file, "[IN] ", logFlags)
+	Err = log.New(file, "[ER] --- ", logFlags)
+	Warn = log.New(file, "[WA] --- ", logFlags)
+	Info = log.New(file, "[IN] --- ", logFlags)
 	if debugs {
-		Debug = log.New(file, "[DE] ", logFlags)
+		Debug = log.New(file, "[DE]     ", logFlags)
 		Enter = log.New(file, "[DE] >>> ", logFlags)
 		Leave = log.New(file, "[DE] <<< ", logFlags)
 	} else {

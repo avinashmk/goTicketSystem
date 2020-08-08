@@ -14,8 +14,9 @@ const (
 
 // POST Action vs UI Names
 const (
-	SignInFunc = "/signin"
-	SignUpFunc = "/signup"
+	SignInFunc  = "/signin"
+	SignUpFunc  = "/signup"
+	SignOffFunc = "/signoff"
 
 	SearchTrainPostAction = "/searchtrain"
 	SearchTrainOptionName = "Search Trains"
@@ -48,4 +49,9 @@ const (
 const (
 	SessionTokenCookie = "session_token"
 	UserIDCookie       = "user_id"
+)
+
+// Web Templates, Statics locations
+const (
+	AddTrainSchemaFormTemplate = "./web/templates/addtrainschemaform.html"
 )

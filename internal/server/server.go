@@ -77,6 +77,7 @@ func setupHandlers() {
 	http.Handle("/", fileServer)
 	http.HandleFunc(consts.SignInFunc, handler.Signin)
 	http.HandleFunc(consts.SignUpFunc, handler.Signup)
+	http.HandleFunc(consts.SignOffFunc, handler.Signoff)
 
 	http.HandleFunc(consts.SearchTrainPostAction, handler.SearchTrain)
 	http.HandleFunc(consts.MakeReservPostAction, handler.MakeReservation)

@@ -6,7 +6,7 @@ import (
 
 // Menu place holder for menu objects
 type Menu struct {
-	Gen     *General
+	Gen     General
 	Options []Option
 }
 
@@ -17,8 +17,8 @@ type Option struct {
 }
 
 // MakeMainMenu the main menu
-func MakeMainMenu(gen *General) (menu *Menu) {
-	menu = &Menu{
+func MakeMainMenu(gen General) (menu Menu) {
+	menu = Menu{
 		Gen: gen,
 		Options: []Option{
 			{

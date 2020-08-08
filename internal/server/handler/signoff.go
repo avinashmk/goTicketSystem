@@ -8,10 +8,10 @@ import (
 	"github.com/avinashmk/goTicketSystem/logger"
 )
 
-// SearchTrain SearchTrain
-func SearchTrain(w http.ResponseWriter, r *http.Request) {
-	logger.Enter.Println("SearchTrain()")
-	defer logger.Leave.Println("SearchTrain()")
+// Signoff Signoff
+func Signoff(w http.ResponseWriter, r *http.Request) {
+	logger.Enter.Println("Signoff()")
+	defer logger.Leave.Println("Signoff()")
 
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method is not supported.", http.StatusNotFound)
@@ -21,14 +21,12 @@ func SearchTrain(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "ParseForm() err: %v", err)
 		return
 	}
-
 	s, httpStatus := session.Get(r)
 	if httpStatus == http.StatusOK {
-		s.Refresh(w)
+		s.Close(w)
+		httpStatus = http.StatusSeeOther
 	} else {
 		http.Error(w, "Unable to authenticate session!", httpStatus)
-		return
 	}
-
-	fmt.Fprintf(w, "SearchTrain got!\n User: %s", s.Gen.UserID)
+	http.Redirect(w, r, "/", httpStatus)
 }

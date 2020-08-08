@@ -4,9 +4,6 @@
 <head>
     <meta charset="UTF-8" />
     <title>signin</title>
-</head>
-
-<body>
     <style type="text/css">
         .fieldset-auto-width {
             display: inline-block;
@@ -47,7 +44,9 @@
             font-weight: bold;
         }
     </style>
+</head>
 
+<body style="font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif">
     <h2>
         <p
             style="text-align:left; color:green; font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif">
@@ -60,10 +59,10 @@
                 <legend>Sign In!</legend>
                 <br>
                 <label>Username: </label><br>
-                <input name="username" type="text" value={{.UserID}} />
+                <input name="username" type="text" value={{.UserID}} placeholder="Username" />
                 <br><br>
                 <label>Password: </label><br>
-                <input name="password" type="password" value="" />
+                <input name="password" type="password" value="" placeholder="Password" />
                 <p class="err-txt">
                     {{.Message}}
                 </p>

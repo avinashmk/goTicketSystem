@@ -5,10 +5,39 @@ import (
 	"html/template"
 	"net/http"
 
+	"github.com/avinashmk/goTicketSystem/internal/consts"
 	"github.com/avinashmk/goTicketSystem/internal/server/session"
-
 	"github.com/avinashmk/goTicketSystem/logger"
 )
+
+// AddTrainSchema (Kind of) redirects to the form
+func AddTrainSchema(w http.ResponseWriter, r *http.Request) {
+	logger.Enter.Println("AddTrainSchema()")
+	defer logger.Leave.Println("AddTrainSchema()")
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method is not supported.", http.StatusNotFound)
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		fmt.Fprintf(w, "ParseForm() err: %v", err)
+		return
+	}
+	s, httpStatus := session.Get(r)
+	if httpStatus == http.StatusOK {
+		s.Refresh(w)
+	} else {
+		http.Error(w, "Unable to authenticate session!", httpStatus)
+		return
+	}
+
+	if t, err := template.ParseFiles(consts.AddTrainSchemaFormTemplate); err == nil {
+		t.Execute(w, s.Gen)
+	} else {
+		logger.Err.Println("Unable to parse: ", err)
+		return
+	}
+}
 
 // AddTrainSchemaForm Handles POST request from the Add new train Form.
 func AddTrainSchemaForm(w http.ResponseWriter, r *http.Request) {
@@ -21,6 +50,11 @@ func AddTrainSchemaForm(w http.ResponseWriter, r *http.Request) {
 	}
 	if err := r.ParseForm(); err != nil {
 		fmt.Fprintf(w, "ParseForm() err: %v", err)
+		return
+	}
+	s, httpStatus := session.Get(r)
+	if httpStatus != http.StatusOK {
+		http.Error(w, "Unable to authenticate session!", httpStatus)
 		return
 	}
 
@@ -39,31 +73,5 @@ func AddTrainSchemaForm(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "t1c: %s\n", r.PostFormValue("ticket[1][class]"))
 	fmt.Fprintf(w, "t2c: %s\n", r.PostFormValue("ticket[2][class]"))
 
-}
-
-// AddTrainSchema (Kind of) redirects to the form
-func AddTrainSchema(w http.ResponseWriter, r *http.Request) {
-	logger.Enter.Println("AddTrainSchema()")
-	defer logger.Leave.Println("AddTrainSchema()")
-
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method is not supported.", http.StatusNotFound)
-		return
-	}
-	if err := r.ParseForm(); err != nil {
-		fmt.Fprintf(w, "ParseForm() err: %v", err)
-		return
-	}
-
-	if t, err := template.ParseFiles("./web/templates/addtrainschemaform.html"); err == nil {
-		gen, httpStatus := session.GetToken(r)
-		if httpStatus == http.StatusOK {
-			gen.Message = "User doesn't exist. Sign Up instead?"
-			t.Execute(w, gen)
-		} else {
-			http.Error(w, "Unable to authenticate session!", httpStatus)
-		}
-	} else {
-		logger.Err.Println("Unable to parse: ", err)
-	}
+	s.Refresh(w)
 }

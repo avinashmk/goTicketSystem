@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/avinashmk/goTicketSystem/internal/model"
+	"github.com/avinashmk/goTicketSystem/internal/server/session"
 	"github.com/avinashmk/goTicketSystem/internal/store"
 	"github.com/avinashmk/goTicketSystem/logger"
 )
@@ -35,7 +36,7 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Unable to login: Internal Error Occurred", http.StatusInternalServerError)
 		} else {
 			gen.Message = "Error Mis-match in passwords"
-			t.Execute(w, gen)
+			t.Execute(w, &gen)
 		}
 	} else {
 		if user, err := store.NewUser(username, password); err != nil {
@@ -43,7 +44,7 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Unable to Register: Internal Error Occurred", http.StatusInternalServerError)
 		} else {
 			if user.RegisterUser() {
-				// session.SetToken(w, gen)
+				_ = session.New(w, gen)
 				t, err := template.ParseFiles("./web/templates/menu.html")
 				if err != nil {
 					logger.Err.Println("Unable to parse template ", err)

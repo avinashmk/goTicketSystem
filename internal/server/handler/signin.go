@@ -45,7 +45,7 @@ func Signin(w http.ResponseWriter, r *http.Request) {
 	} else {
 		gen.Role = user.Role
 		if user.Authenticate(password) {
-			session.SetToken(w, gen)
+			_ = session.New(w, gen)
 			t, err := template.ParseFiles("./web/templates/menu.html")
 			if err != nil {
 				logger.Err.Println("Unable to parse template ", err)

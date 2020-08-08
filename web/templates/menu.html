@@ -12,14 +12,23 @@
 
         }
 
-        input[type=submit],
-        input[type=reset] {
+        .options {
             width: 100%;
             padding: 5px 10px;
             margin: 2px 0;
             box-sizing: border-box;
             border: 2px solid green;
             border-radius: 5px 15px 5px 15px;
+            font-weight: bold;
+        }
+
+        .signoff {
+            width: auto;
+            padding: 5px 10px;
+            margin: 2px 0;
+            box-sizing: border-box;
+            border: 2px solid red;
+            border-radius: 15px 5px 15px 5px;
             font-weight: bold;
         }
 
@@ -34,7 +43,7 @@
     </style>
 </head>
 
-<body>
+<body style="font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif">
     <h2>
         Ticket System
     </h2>
@@ -48,11 +57,15 @@
             {{range .Options}}
             <p>
             <form method="POST" action={{.Function}}>
-                <input type="submit" value={{.Name}} />
+                <input class="options" type="submit" value={{.Name}} />
             </form>
             </p>
             {{end}}
         </fieldset>
+        <br><br>
+        <form method="POST" action="/signoff">
+            <input class="signoff" type="submit" value="Signoff" />
+        </form>
     </div>
 </body>
 

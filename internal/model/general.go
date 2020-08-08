@@ -12,8 +12,7 @@ type General struct {
 }
 
 // MakeGeneral gives a general obj
-func MakeGeneral(params ...string) (gen *General) {
-	gen = new(General)
+func MakeGeneral(params ...string) (gen General) {
 	gen.UserID = params[0]
 	if len(params) > 1 {
 		gen.Role = params[1]
