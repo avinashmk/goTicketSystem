@@ -43,7 +43,9 @@ Structure:
    |   |   |---menu.go:  
    |   |  
    |   |---server  
+   |   |   |  
    |   |   |---server.go: Starts up web server and sets up all handlers  
+   |   |   |  
    |   |   |---session  
    |   |   |   |  
    |   |   |   |---session.go:  
@@ -53,6 +55,7 @@ Structure:
    |   |       |---common.go:  
    |   |       |---signin.go:  
    |   |       |---signup.go:  
+   |   |       |---signoff.go:  
    |   |       |---searchtrain.go:  
    |   |       |---makereservation.go:  
    |   |       |---viewreservation.go:  

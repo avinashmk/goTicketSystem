@@ -25,8 +25,6 @@ func Signoff(w http.ResponseWriter, r *http.Request) {
 	if httpStatus == http.StatusOK {
 		s.Close(w)
 		httpStatus = http.StatusSeeOther
-	} else {
-		http.Error(w, "Unable to authenticate session!", httpStatus)
 	}
 	http.Redirect(w, r, "/", httpStatus)
 }
