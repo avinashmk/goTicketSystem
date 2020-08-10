@@ -151,13 +151,13 @@
                 <div id="stops-container">
                     <input class="box-a" name="stop[1][position]" value="0" readonly>
                     <input class="box-a" name="stop[1][station]" placeholder="Origin">
-                    <input class="box-a" name="stop[1][arrival]" value="Not Applicable" readonly>
-                    <input class="box-a" name="stop[1][departure]">
+                    <input class="box-a" name="stop[1][arrival]" type="time" value="00:00" readonly>
+                    <input class="box-a" name="stop[1][departure]" type="time" min="00:00" max="23:59">
                     <div style="clear:left"></div>
-                    <input class="box-a" name="stop[2][position]">
+                    <input class="box-a" name="stop[2][position]" min="1" max="99">
                     <input class="box-a" name="stop[2][station]" placeholder="Destination">
-                    <input class="box-a" name="stop[2][arrival]">
-                    <input class="box-a" name="stop[2][departure]" value="Not Applicable" readonly>
+                    <input class="box-a" name="stop[2][arrival]" type="time" min="00:00" max="23:59">
+                    <input class="box-a" name="stop[2][departure]" type="time" value="00:00" readonly>
                     <div style="clear:left"></div>
                 </div>
                 <input class="buttons" type="button" style="font-style: italic;" value="Add Intermediate Stops"
@@ -181,8 +181,8 @@
         function addTicketRow() {
             let template = `
                     <input class="box-a" name="ticket[${i}][class]">
-                    <input class="box-a" name="ticket[${i}][count]">
-                    <input class="box-a" name="ticket[${i}][fare]">
+                    <input class="box-a" name="ticket[${i}][count]" min="1">
+                    <input class="box-a" name="ticket[${i}][fare]" min="100">
                     <div style="clear:left"></div>
                     `;
             let container = document.getElementById('ticket-container');
@@ -195,10 +195,10 @@
         let j = 3;
         function addStopRow() {
             let template = `
-                    <input class="box-a" name="stop[${j}][position]">
+                    <input class="box-a" name="stop[${j}][position]" min="1" max="99">
                     <input class="box-a" name="stop[${j}][station]">
-                    <input class="box-a" name="stop[${j}][arrival]">
-                    <input class="box-a" name="stop[${j}][departure]">
+                    <input class="box-a" name="stop[${j}][arrival]" type="time" min="00:00" max="23:59">
+                    <input class="box-a" name="stop[${j}][departure]" type="time" min="00:00" max="23:59">
                     <div style="clear:left"></div>
                     `;
             let container = document.getElementById('stops-container');

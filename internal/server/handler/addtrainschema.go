@@ -8,10 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/avinashmk/goTicketSystem/internal/store"
-
 	"github.com/avinashmk/goTicketSystem/internal/consts"
 	"github.com/avinashmk/goTicketSystem/internal/server/session"
+	"github.com/avinashmk/goTicketSystem/internal/store"
 	"github.com/avinashmk/goTicketSystem/logger"
 )
 
@@ -65,13 +64,17 @@ func AddTrainSchemaForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	trainNumber := r.PostFormValue(consts.TrainName)
-	trainName := r.PostFormValue(consts.TrainName)
+	trainNumber, err := strconv.Atoi(strings.TrimSpace(r.PostFormValue(consts.TrainNumber)))
+	if err != nil {
+		logger.Debug.Println("Invalid number for train: ", err)
+		return
+	}
+	trainName := strings.TrimSpace(r.PostFormValue(consts.TrainName))
 	freq := getFrequency(r)
 	avail := getAvail(r)
 	stops := getStops(r)
 	fmt.Fprintf(w, "AddTrainSchemaForm got!\n")
-	fmt.Fprintf(w, "trainNumber: %s\n", trainNumber)
+	fmt.Fprintf(w, "trainNumber: %d\n", trainNumber)
 	fmt.Fprintf(w, "trainName  : %s\n", trainName)
 	fmt.Fprintf(w, "freq       : %v\n", freq)
 	fmt.Fprintf(w, "avail      : %v\n", avail)
