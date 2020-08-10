@@ -66,6 +66,29 @@
 
         .box-a {
             width: 100px;
+            height: 20px;
+            padding: 1px 1px;
+            border: 1px solid green;
+            margin: 1px 1px;
+            float: left;
+            text-align: center;
+            border-radius: 10px;
+        }
+
+        .box-b {
+            width: 50px;
+            height: 20px;
+            padding: 1px 1px;
+            border: 1px solid green;
+            margin: 1px 1px;
+            float: left;
+            text-align: center;
+            border-radius: 10px;
+        }
+
+        .box-c {
+            width: 80px;
+            height: 20px;
             padding: 1px 1px;
             border: 1px solid green;
             margin: 1px 1px;
@@ -92,11 +115,11 @@
             <br>
             <form method="POST" action="/addtrainschemaform">
                 <label class="bold-green">Train Number:</label>
-                <input name="TrainNumber" type="text" value="" />
+                <input name="TrainNumber" type="text" value="" required />
                 <br><br>
 
                 <label class="bold-green">Train Name:</label>
-                <input name="TrainName" type="text" value="" />
+                <input name="TrainName" type="text" value="" required />
                 <br><br>
 
                 <label class="bold-green">Frequency:</label>
@@ -131,9 +154,9 @@
                     <div style="clear:left"></div>
                 </span>
                 <div id="ticket-container">
-                    <input class="box-a" name="ticket[1][class]">
-                    <input class="box-a" name="ticket[1][count]">
-                    <input class="box-a" name="ticket[1][fare]">
+                    <input class="box-a" name="ticket[1][class]" required>
+                    <input class="box-a" name="ticket[1][count]" required>
+                    <input class="box-a" name="ticket[1][fare]" required>
                     <div style="clear:left"></div>
                 </div>
                 <input class="buttons" type="button" style="font-style: italic;" value="Add Row"
@@ -142,22 +165,28 @@
 
                 <label class="bold-green">Stops:</label><br>
                 <span style="font-weight: bold;">
-                    <div class="box-a">Position</div>
-                    <div class="box-a">Station Name</div>
-                    <div class="box-a">Arrival</div>
-                    <div class="box-a">Departure</div>
+                    <div style="height:40px" class="box-a">Position</div>
+                    <div style="height:40px" class="box-a">Station Name</div>
+                    <div style="height:40px" class="box-c">Arrival</div>
+                    <div style="height:40px" class="box-b">Arrival Offset</div>
+                    <div style="height:40px" class="box-c">Departure</div>
+                    <div style="height:40px" class="box-b">Depart Offset</div>
                     <div style="clear:left"></div>
                 </span>
                 <div id="stops-container">
                     <input class="box-a" name="stop[1][position]" value="0" readonly>
-                    <input class="box-a" name="stop[1][station]" placeholder="Origin">
-                    <input class="box-a" name="stop[1][arrival]" type="time" value="00:00" readonly>
-                    <input class="box-a" name="stop[1][departure]" type="time" min="00:00" max="23:59">
+                    <input class="box-a" name="stop[1][station]" placeholder="Origin" required>
+                    <input class="box-c" name="stop[1][arrival]" type="time" value="00:00" readonly>
+                    <input class="box-b" name="stop[1][arriveOffset]" value="0" readonly>
+                    <input class="box-c" name="stop[1][departure]" type="time" min="00:00" max="23:59" required>
+                    <input class="box-b" name="stop[1][departOffset]" value="0" readonly>
                     <div style="clear:left"></div>
-                    <input class="box-a" name="stop[2][position]" min="1" max="99">
-                    <input class="box-a" name="stop[2][station]" placeholder="Destination">
-                    <input class="box-a" name="stop[2][arrival]" type="time" min="00:00" max="23:59">
-                    <input class="box-a" name="stop[2][departure]" type="time" value="00:00" readonly>
+                    <input class="box-a" name="stop[2][position]" value="99" readonly>
+                    <input class="box-a" name="stop[2][station]" placeholder="Destination" required>
+                    <input class="box-c" name="stop[2][arrival]" type="time" min="00:00" max="23:59" required>
+                    <input class="box-b" name="stop[2][arriveOffset]" required>
+                    <input class="box-c" name="stop[2][departure]" type="time" value="00:00" readonly>
+                    <input class="box-b" name="stop[2][departOffset]" value="0" readonly>
                     <div style="clear:left"></div>
                 </div>
                 <input class="buttons" type="button" style="font-style: italic;" value="Add Intermediate Stops"
@@ -166,7 +195,9 @@
                 <p class="err-txt">
                     {{.Message}}
                 </p>
-                <input class="postbuttons" type="submit" value="Add Train" /><br>
+                <p style="text-align: center;">
+                    <input class="postbuttons" type="submit" value="Add Train" />
+                </p>
                 <input class="postbuttons" type="reset" value="Clear all fields" />
             </form>
         </fieldset>
@@ -198,7 +229,9 @@
                     <input class="box-a" name="stop[${j}][position]" min="1" max="99">
                     <input class="box-a" name="stop[${j}][station]">
                     <input class="box-a" name="stop[${j}][arrival]" type="time" min="00:00" max="23:59">
+                    <input class="box-b" name="stop[${j}][arriveOffset]" min="0" max="3">
                     <input class="box-a" name="stop[${j}][departure]" type="time" min="00:00" max="23:59">
+                    <input class="box-b" name="stop[${j}][departOffset]" min="0" max="3">
                     <div style="clear:left"></div>
                     `;
             let container = document.getElementById('stops-container');

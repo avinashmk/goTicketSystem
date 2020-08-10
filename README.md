@@ -1,6 +1,6 @@
 # goTicketSystem [Under dev]
  
-A robust application to reserve/book Tickets.
+A robust and autonomous application to manage Tickets.
 
 Features:
 - Handle concurrent users.
@@ -19,6 +19,7 @@ Structure:
    |  
    |---docs  
    |   |  
+   |   |---db_design.png: Database design diagram.
    |   |---repo_structure.png: Repo structure diagram.  
    |  
    |---internal  
