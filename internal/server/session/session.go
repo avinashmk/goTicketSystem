@@ -134,19 +134,19 @@ func (s *Session) setCookies(w http.ResponseWriter) {
 	logger.Enter.Println("setCookies()")
 	defer logger.Leave.Println("setCookies()")
 
-	expiry := time.Now().Add(121 * time.Second)
+	expiry := time.Now().Add(consts.CookieAge * time.Second)
 	http.SetCookie(w, &http.Cookie{
 		Name:     consts.SessionTokenCookie,
 		Value:    s.tokenValue,
 		Expires:  expiry,
-		MaxAge:   120,
+		MaxAge:   consts.CookieAge,
 		HttpOnly: true,
 	})
 	http.SetCookie(w, &http.Cookie{
 		Name:     consts.UserIDCookie,
 		Value:    s.Gen.UserID,
 		Expires:  expiry,
-		MaxAge:   120,
+		MaxAge:   consts.CookieAge,
 		HttpOnly: true,
 	})
 	logger.Debug.Println("Cookie set: ", s.tokenValue)

@@ -31,6 +31,7 @@ const (
 	ViewReservOptionName = "View Reservations"
 
 	// Admin specific Options
+	AddTrainSchemaFormTemplate   = "./web/templates/addtrainschemaform.html"
 	AddTrainSchemaFormPostAction = "/addtrainschemaform"
 	AddTrainSchemaPostAction     = "/addtrainschema"
 	AddTrainSchemaOptionName     = "Add Train Schema"
@@ -49,9 +50,33 @@ const (
 const (
 	SessionTokenCookie = "session_token"
 	UserIDCookie       = "user_id"
+	CookieAge          = 300
 )
 
-// Web Templates, Statics locations
+// Train Schema fields
 const (
-	AddTrainSchemaFormTemplate = "./web/templates/addtrainschemaform.html"
+	TrainName   = "TrainName"
+	TrainNumber = "TrainNumber"
+
+	CheckboxOn = "on"
+	Monday     = "Mon"
+	Tuesday    = "Tue"
+	Wednesday  = "Wed"
+	Thursday   = "Thu"
+	Friday     = "Fri"
+	Saturday   = "Sat"
+	Sunday     = "Sun"
+
+	AvailPrefix = "ticket["
+	AvailClass  = "][class]"
+	AvailCount  = "][count]"
+	AvailFare   = "][fare]"
+
+	StopPrefix   = "stop["
+	StopPosition = "][position]"
+	StopStation  = "][station]"
+	StopArrival  = "][arrival]"
+	StopDepart   = "][departure]"
+
+	NotApplicable = "Not Applicable"
 )
