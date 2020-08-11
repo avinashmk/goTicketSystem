@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/avinashmk/goTicketSystem/internal/consts"
+	"github.com/avinashmk/goTicketSystem/internal/model"
 	"github.com/avinashmk/goTicketSystem/internal/server/session"
 	"github.com/avinashmk/goTicketSystem/internal/store"
 	"github.com/avinashmk/goTicketSystem/logger"
@@ -73,12 +74,33 @@ func AddTrainSchemaForm(w http.ResponseWriter, r *http.Request) {
 	freq := getFrequency(r)
 	avail := getAvail(r)
 	stops := getStops(r)
-	fmt.Fprintf(w, "AddTrainSchemaForm got!\n")
-	fmt.Fprintf(w, "trainNumber: %d\n", trainNumber)
-	fmt.Fprintf(w, "trainName  : %s\n", trainName)
-	fmt.Fprintf(w, "freq       : %v\n", freq)
-	fmt.Fprintf(w, "avail      : %v\n", avail)
-	fmt.Fprintf(w, "stops      : %v\n", stops)
+
+	sd := store.SchemaDoc{
+		TrainName:    trainName,
+		TrainNumber:  trainNumber,
+		Frequency:    freq,
+		Availability: avail,
+		Stops:        stops,
+	}
+	if sd.AddSchema() {
+		s.Gen.Message = "Train Schema added! Train ID: " + trainName + "_" + string(strconv.Itoa(trainNumber))
+		t, err := template.ParseFiles("./web/templates/menu.html")
+		if err != nil {
+			logger.Err.Println("Unable to parse template ", err)
+			http.Error(w, "Unable to login: Internal Error Occurred", http.StatusInternalServerError)
+		} else {
+			t.Execute(w, model.MakeMainMenu(s.Gen))
+		}
+	} else {
+		logger.Err.Println("Unable to add schema to DB")
+		s.Gen.Message = "Unable to update! Try again!"
+		if t, err := template.ParseFiles(consts.AddTrainSchemaFormTemplate); err == nil {
+			t.Execute(w, s.Gen)
+		} else {
+			logger.Err.Println("Unable to parse: ", err)
+			return
+		}
+	}
 }
 
 func getFrequency(r *http.Request) []string {
@@ -183,7 +205,7 @@ func getStopsRow(r *http.Request, index int) (stopsRow store.StationSchema, vali
 	}
 
 	var err error
-	stopsRow.Pos, err = strconv.Atoi(pos)
+	stopsRow.Position, err = strconv.Atoi(pos)
 	if err != nil {
 		valid = false
 		return
@@ -191,23 +213,26 @@ func getStopsRow(r *http.Request, index int) (stopsRow store.StationSchema, vali
 
 	stopsRow.Name = name
 
-	if stopsRow.Arrive, valid = parseTime(arrive); !valid {
-		logger.Debug.Println("Unable to convert arrive: ", arrive)
-		return
+	if stopsRow.Position == consts.OriginPos {
+		stopsRow.Arrive = time.Date(0, 0, 0, 0, 0, 0, 0, time.UTC)
+	} else {
+		if stopsRow.Arrive, valid = parseTime(arrive); !valid {
+			logger.Debug.Println("Unable to convert arrive: ", arrive)
+			return
+		}
 	}
 
-	if stopsRow.Depart, valid = parseTime(depart); !valid {
-		logger.Debug.Println("Unable to convert depart: ", depart)
+	if stopsRow.Position == consts.DestinPos {
+		stopsRow.Arrive = time.Date(0, 0, 0, 0, 0, 0, 0, time.UTC)
+	} else {
+		if stopsRow.Depart, valid = parseTime(depart); !valid {
+			logger.Debug.Println("Unable to convert depart: ", depart)
+		}
 	}
 	return
 }
 
 func parseTime(s string) (t time.Time, valid bool) {
-	if s == consts.NotApplicable {
-		valid = true
-		return
-	}
-
 	arrStr := strings.Split(s, ":")
 	if len(arrStr) != 2 {
 		valid = false

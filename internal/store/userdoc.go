@@ -4,11 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"golang.org/x/crypto/bcrypt"
-
 	"github.com/avinashmk/goTicketSystem/logger"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // UserDoc placeholder for User credentials.
@@ -18,11 +17,6 @@ type UserDoc struct {
 	Role     string
 	Status   string
 }
-
-var (
-	// Collections support concurrency.
-	usersCollection *mongo.Collection = nil
-)
 
 // NewUser creates a new UserDoc obj
 func NewUser(username, password string) (user *UserDoc, err error) {

@@ -57,6 +57,9 @@ const (
 const (
 	TrainName   = "TrainName"
 	TrainNumber = "TrainNumber"
+	Frequency   = "Frequency"
+	Tickets     = "Tickets"
+	Stops       = "Stops"
 
 	CheckboxOn = "on"
 	Monday     = "Mon"
@@ -78,5 +81,6 @@ const (
 	StopArrival  = "][arrival]"
 	StopDepart   = "][departure]"
 
-	NotApplicable = "Not Applicable"
+	OriginPos = 1
+	DestinPos = 99
 )
