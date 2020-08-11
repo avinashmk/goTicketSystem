@@ -26,11 +26,15 @@ var (
 )
 
 // New creates new Session
-func New(w http.ResponseWriter, g model.General) Session {
+func New(w http.ResponseWriter, g model.General) (s Session, alreadyActive bool) {
 	logger.Enter.Println("NewSession()")
 	defer logger.Leave.Println("NewSession()")
 
-	s := Session{
+	if _, alreadyActive = activeSessions[g.UserID]; alreadyActive {
+		return
+	}
+
+	s = Session{
 		Gen:        g,
 		tokenValue: generateToken(g.UserID),
 	}
@@ -39,7 +43,7 @@ func New(w http.ResponseWriter, g model.General) Session {
 	asMux.Lock()
 	activeSessions[g.UserID] = s
 	asMux.Unlock()
-	return s
+	return
 }
 
 // Get sets Tokens

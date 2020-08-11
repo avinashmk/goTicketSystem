@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/avinashmk/goTicketSystem/internal/consts"
@@ -78,28 +79,54 @@ func FindSchema(trainNumber int) (s SchemaDoc, err error) {
 			logger.Err.Println(err)
 		}
 	} else {
-		s.TrainName = fmt.Sprintf("%v", result[consts.TrainName])
-		s.TrainNumber = int(result[consts.TrainNumber].(int32))
-		for _, val := range []interface{}(result[consts.Frequency].(primitive.A)) {
-			s.Frequency = append(s.Frequency, val.(string))
-		}
-		for _, val := range []interface{}(result[consts.Tickets].(primitive.A)) {
-			var avail TicketSchema
-			bsonBytes, _ := bson.Marshal(val)
-			bson.Unmarshal(bsonBytes, &avail)
-			s.Availability = append(s.Availability, avail)
-		}
-		for _, val := range []interface{}(result[consts.Stops].(primitive.A)) {
-			var stop StationSchema
-			bsonBytes, _ := bson.Marshal(val)
-			bson.Unmarshal(bsonBytes, &stop)
-			s.Stops = append(s.Stops, stop)
+		s, _ = getSchemaDoc(result)
+	}
+	// logger.Debug.Println("TrainName   : ", s.TrainName)
+	// logger.Debug.Println("TrainNumber : ", s.TrainNumber)
+	// logger.Debug.Println("Frequency   : ", s.Frequency)
+	// logger.Debug.Println("Availability: ", s.Availability)
+	// logger.Debug.Println("Stops       : ", s.Stops)
+	return
+}
+
+// GetAllSchema fetches trainSchema from db
+func GetAllSchema(trainNumber int) (sArr []SchemaDoc, err error) {
+	logger.Enter.Println("GetAllSchema()")
+	defer logger.Leave.Println("GetAllSchema()")
+
+	cursor, err := schemaCollection.Find(context.TODO(), bson.D{{}})
+	if err != nil {
+		log.Fatal(err)
+	}
+	var results []bson.M
+	if err = cursor.All(context.TODO(), &results); err != nil {
+		log.Fatal(err)
+	}
+	for _, result := range results {
+		if s, valid := getSchemaDoc(result); valid {
+			sArr = append(sArr, s)
 		}
 	}
-	logger.Debug.Println("TrainName   : ", s.TrainName)
-	logger.Debug.Println("TrainNumber : ", s.TrainNumber)
-	logger.Debug.Println("Frequency   : ", s.Frequency)
-	logger.Debug.Println("Availability: ", s.Availability)
-	logger.Debug.Println("Stops       : ", s.Stops)
+	return
+}
+
+func getSchemaDoc(result bson.M) (s SchemaDoc, valid bool) {
+	s.TrainName = fmt.Sprintf("%v", result[consts.TrainName])
+	s.TrainNumber = int(result[consts.TrainNumber].(int32))
+	for _, val := range []interface{}(result[consts.Frequency].(primitive.A)) {
+		s.Frequency = append(s.Frequency, val.(string))
+	}
+	for _, val := range []interface{}(result[consts.Tickets].(primitive.A)) {
+		var avail TicketSchema
+		bsonBytes, _ := bson.Marshal(val)
+		bson.Unmarshal(bsonBytes, &avail)
+		s.Availability = append(s.Availability, avail)
+	}
+	for _, val := range []interface{}(result[consts.Stops].(primitive.A)) {
+		var stop StationSchema
+		bsonBytes, _ := bson.Marshal(val)
+		bson.Unmarshal(bsonBytes, &stop)
+		s.Stops = append(s.Stops, stop)
+	}
 	return
 }

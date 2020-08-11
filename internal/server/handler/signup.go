@@ -44,13 +44,23 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Unable to Register: Internal Error Occurred", http.StatusInternalServerError)
 		} else {
 			if user.RegisterUser() {
-				_ = session.New(w, gen)
-				t, err := template.ParseFiles("./web/templates/menu.html")
-				if err != nil {
-					logger.Err.Println("Unable to parse template ", err)
-					http.Error(w, "Unable to login: Internal Error Occurred", http.StatusInternalServerError)
+				if _, alreadyActive := session.New(w, gen); alreadyActive {
+					t, err := template.ParseFiles("./web/templates/signin.html")
+					if err != nil {
+						logger.Err.Println("Unable to parse template ", err)
+						http.Error(w, "Unable to login: Internal Error Occurred", http.StatusInternalServerError)
+					} else {
+						gen.Message = "User already active in another session"
+						t.Execute(w, gen)
+					}
 				} else {
-					t.Execute(w, model.MakeMainMenu(gen))
+					t, err := template.ParseFiles("./web/templates/menu.html")
+					if err != nil {
+						logger.Err.Println("Unable to parse template ", err)
+						http.Error(w, "Unable to login: Internal Error Occurred", http.StatusInternalServerError)
+					} else {
+						t.Execute(w, model.MakeMainMenu(gen))
+					}
 				}
 			} else {
 				logger.Err.Println("Unable to create new UserDoc object: ", err)
