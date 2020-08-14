@@ -20,6 +20,7 @@ var (
 	// Collections support concurrency.
 	usersCollection  *mongo.Collection = nil
 	schemaCollection *mongo.Collection = nil
+	chartsCollection *mongo.Collection = nil
 )
 
 // Init inits
@@ -66,6 +67,7 @@ func connectDb() {
 	db := client.Database("trainTicket")
 	usersCollection = db.Collection("users")
 	schemaCollection = db.Collection("trainschema")
+	chartsCollection = db.Collection("traincharts")
 
 	clientStarter <- true
 

@@ -62,13 +62,13 @@ const (
 	Stops       = "Stops"
 
 	CheckboxOn = "on"
-	Monday     = "Mon"
-	Tuesday    = "Tue"
-	Wednesday  = "Wed"
-	Thursday   = "Thu"
-	Friday     = "Fri"
-	Saturday   = "Sat"
-	Sunday     = "Sun"
+	Monday     = "Monday"
+	Tuesday    = "Tuesday"
+	Wednesday  = "Wednesday"
+	Thursday   = "Thursday"
+	Friday     = "Friday"
+	Saturday   = "Saturday"
+	Sunday     = "Sunday"
 
 	AvailPrefix = "ticket["
 	AvailClass  = "][class]"
@@ -83,4 +83,13 @@ const (
 
 	OriginPos = 1
 	DestinPos = 99
+)
+
+// Chart fields
+const (
+	TrainSchemaID = "trainschema_id"
+	Date          = "Date"
+	Availability  = "Availability"
+	TicketIDs     = "traintickets_id"
+	ExpireAt      = "expireAt"
 )

@@ -20,7 +20,6 @@ Structure:
    |---docs  
    |   |  
    |   |---db_design.png: Database design diagram.
-   |   |---repo_structure.png: Repo structure diagram.  
    |  
    |---internal  
    |   |  
@@ -37,6 +36,8 @@ Structure:
    |   |---housekeeping  
    |   |   |  
    |   |   |---housekeeping.go:  
+   |   |   |---charts.go:  
+   |   |   |---tickets.go:  
    |   |  
    |   |---model  
    |   |   |  
@@ -70,6 +71,8 @@ Structure:
    |       |  
    |       |---store.go:  
    |       |---userdoc.go:  
+   |       |---schemaDoc.go:  
+   |       |---chartDoc.go:  
    |  
    |---logger  
    |   |  
