@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/avinashmk/goTicketSystem/internal/consts"
 	"github.com/avinashmk/goTicketSystem/internal/model"
@@ -195,11 +194,13 @@ func getStopsRow(r *http.Request, index int) (stopsRow store.StationSchema, vali
 	name := strings.TrimSpace(r.PostFormValue(consts.StopPrefix + strconv.Itoa(index) + consts.StopStation))
 	arrive := strings.TrimSpace(r.PostFormValue(consts.StopPrefix + strconv.Itoa(index) + consts.StopArrival))
 	depart := strings.TrimSpace(r.PostFormValue(consts.StopPrefix + strconv.Itoa(index) + consts.StopDepart))
+	arriveOffset := strings.TrimSpace(r.PostFormValue(consts.StopPrefix + strconv.Itoa(index) + consts.StopArriveOffset))
+	departOffset := strings.TrimSpace(r.PostFormValue(consts.StopPrefix + strconv.Itoa(index) + consts.StopDepartOffset))
 
-	for i, s := range []string{pos, name, arrive, depart} {
+	for i, s := range []string{pos, name, arrive, depart, arriveOffset, departOffset} {
 		if len(s) == 0 {
 			valid = false
-			logger.Debug.Println("Empty string at: ", i, " row: ", index)
+			logger.Warn.Println("Empty string at: ", i, " row: ", index)
 			return
 		}
 	}
@@ -208,50 +209,16 @@ func getStopsRow(r *http.Request, index int) (stopsRow store.StationSchema, vali
 	stopsRow.Position, err = strconv.Atoi(pos)
 	if err != nil {
 		valid = false
+		logger.Err.Println("Unable to convert stopsRow.Position: ", err)
 		return
 	}
 
 	stopsRow.Name = name
-
-	if stopsRow.Position == consts.OriginPos {
-		stopsRow.Arrive = time.Date(0, 0, 0, 0, 0, 0, 0, time.UTC)
-	} else {
-		if stopsRow.Arrive, valid = parseTime(arrive); !valid {
-			logger.Debug.Println("Unable to convert arrive: ", arrive)
-			return
-		}
-	}
-
-	if stopsRow.Position == consts.DestinPos {
-		stopsRow.Arrive = time.Date(0, 0, 0, 0, 0, 0, 0, time.UTC)
-	} else {
-		if stopsRow.Depart, valid = parseTime(depart); !valid {
-			logger.Debug.Println("Unable to convert depart: ", depart)
-		}
-	}
-	return
-}
-
-func parseTime(s string) (t time.Time, valid bool) {
-	arrStr := strings.Split(s, ":")
-	if len(arrStr) != 2 {
-		valid = false
-		logger.Debug.Println("Invalid time entry: ", arrStr)
-		return
-	}
-
-	arrInt := []int{}
-	for _, str := range arrStr {
-		if num, err := strconv.Atoi(str); err == nil {
-			arrInt = append(arrInt, num)
-		} else {
-			valid = false
-			logger.Debug.Println("Unable to convert to int: ", str, "Error: ", err)
-			return
-		}
-	}
-	// func Date(year int, month Month, day, hour, min, sec, nsec int, loc *Location) Time
-	t = time.Date(1993, time.January, 4, arrInt[0], arrInt[1], 0, 0, time.UTC)
+	stopsRow.Arrive = arrive
+	stopsRow.ArriveOffset, _ = strconv.Atoi(arriveOffset)
+	stopsRow.Depart = depart
+	stopsRow.DepartOffset, _ = strconv.Atoi(departOffset)
+	logger.Debug.Println("New Stop: ", stopsRow)
 	valid = true
 	return
 }

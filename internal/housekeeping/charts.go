@@ -1,8 +1,10 @@
 package housekeeping
 
 import (
+	"strconv"
 	"time"
 
+	"github.com/avinashmk/goTicketSystem/internal/consts"
 	"github.com/avinashmk/goTicketSystem/internal/store"
 	"github.com/avinashmk/goTicketSystem/logger"
 )
@@ -68,12 +70,21 @@ func initCharts() bool {
 				var chart store.ChartDoc
 				for index, chart = range chartList {
 
+					// logger.Debug.Println("trainNum: ", trainNum)
+					// logger.Debug.Println("chart.TrainNumber: ", chart.TrainNumber)
+					// logger.Debug.Println("chart.Date: ", chart.Date)
+					// logger.Debug.Println("timestamp: ", timestamp)
+					// logger.Debug.Println("timestamp.AddDate(0, 0, 1): ", timestamp.AddDate(0, 0, 1))
+
 					// - Verify if SchemaDoc+Date combo is present in TrainChartDocs
 					if trainNum == chart.TrainNumber &&
-						chart.Date.After(timestamp) &&
+						(chart.Date.Equal(timestamp) || chart.Date.After(timestamp)) &&
 						chart.Date.Before(timestamp.AddDate(0, 0, 1)) {
 						f = true
+						logger.Debug.Println("Chart already exists for: ", trainNum, " Date: ", timestamp)
 						break
+					} else {
+						// logger.Debug.Println("Chart deemed mismatch")
 					}
 				}
 				return
@@ -93,9 +104,8 @@ func initCharts() bool {
 				}
 			}
 		}
-
 	}
-	logger.Debug.Println("Chart list: ", chartList)
+	// logger.Debug.Println("Chart list: ", chartList)
 	return true
 }
 
@@ -112,6 +122,9 @@ func populateDaySchema(schemaList []store.SchemaDoc) {
 }
 
 func createChart(trainNum int, date time.Time) bool {
+	logger.Enter.Println("createChart()")
+	defer logger.Leave.Println("createChart()")
+
 	schema, err := store.FindSchema(trainNum)
 	if err != nil {
 		logger.Err.Println("Unable to fetch SchemaDoc! ", err)
@@ -119,13 +132,41 @@ func createChart(trainNum int, date time.Time) bool {
 	}
 
 	chartDoc := store.ChartDoc{
-		TrainSchemaID: "",                 // TODO:<-
-		Date:          date,               // TODO:<-
-		Availability:  []string{},         // TODO:<-
-		TicketIDs:     []string{},         //
-		ExpireAt:      time.Now(),         // TODO:<-
-		TrainNumber:   schema.TrainNumber, //
+		TrainSchemaID: schema.ID,
+		Date:          date,
+		Availability:  populateTickets(schema.Availability),
+		TicketIDs:     []string{},
+		ExpireAt:      getChartExpiry(date, schema.Stops),
+		TrainNumber:   schema.TrainNumber,
+	}
+	return chartDoc.AddChart()
+}
+
+func getChartExpiry(d time.Time, stops []store.StationSchema) (t time.Time) {
+	logger.Enter.Println("getChartExpiry()")
+	defer logger.Leave.Println("getChartExpiry()")
+
+	for _, stop := range stops {
+		if stop.Position == consts.DestinPos {
+			hr, min := stop.GetArriveTime()
+			yr, mon, dt := d.Date()
+			t = time.Date(yr, mon, dt+stop.ArriveOffset+1, hr, min, 0, 0, time.UTC)
+			break
+		}
+	}
+	return
+}
+
+func populateTickets(avail []store.TicketSchema) (tickets []string) {
+	logger.Enter.Println("populateTickets()")
+	defer logger.Leave.Println("populateTickets()")
+
+	for _, class := range avail {
+		for i := 1; i <= class.SeatsTotal; i++ {
+			ticket := class.Class + "_" + strconv.Itoa(i)
+			tickets = append(tickets, ticket)
+		}
 	}
 
-	return chartDoc.AddChart()
+	return
 }

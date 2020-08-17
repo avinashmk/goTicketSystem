@@ -3,7 +3,8 @@ package store
 import (
 	"context"
 	"fmt"
-	"time"
+	"strconv"
+	"strings"
 
 	"github.com/avinashmk/goTicketSystem/internal/consts"
 	"github.com/avinashmk/goTicketSystem/logger"
@@ -14,21 +15,24 @@ import (
 
 // TicketSchema TicketSchema
 type TicketSchema struct {
-	Class      string `bson:"class"`
-	SeatsTotal int    `bson:"seatstotal"`
-	Fare       int    `bson:"fare"`
+	Class      string `bson:"Class"`
+	SeatsTotal int    `bson:"Seatstotal"`
+	Fare       int    `bson:"Fare"`
 }
 
 // StationSchema StationSchema
 type StationSchema struct {
-	Position int       `bson:"position"`
-	Name     string    `bson:"name"`
-	Arrive   time.Time `bson:"arive"`
-	Depart   time.Time `bson:"depart"`
+	Position     int    `bson:"Position"`
+	Name         string `bson:"Name"`
+	Arrive       string `bson:"Arive"`
+	ArriveOffset int    `bson:"ArriveOffset"`
+	Depart       string `bson:"Depart"`
+	DepartOffset int    `bson:"DepartOffset"`
 }
 
 // SchemaDoc SchemaDoc
 type SchemaDoc struct {
+	ID           string          `bson:"_id"`
 	TrainName    string          `bson:"TrainName"`
 	TrainNumber  int             `bson:"TrainNumber"`
 	Frequency    []string        `bson:"Frequency"`
@@ -120,6 +124,7 @@ func getSchemaDoc(result bson.M) (s SchemaDoc, valid bool) {
 	defer logger.Leave.Println("getSchemaDoc()")
 	valid = true
 
+	s.ID = result[consts.ID].(primitive.ObjectID).Hex()
 	s.TrainName = fmt.Sprintf("%v", result[consts.TrainName])
 	s.TrainNumber = int(result[consts.TrainNumber].(int32))
 	for _, val := range []interface{}(result[consts.Frequency].(primitive.A)) {
@@ -137,5 +142,21 @@ func getSchemaDoc(result bson.M) (s SchemaDoc, valid bool) {
 		bson.Unmarshal(bsonBytes, &stop)
 		s.Stops = append(s.Stops, stop)
 	}
+	return
+}
+
+// GetArriveTime GetArriveTime
+func (ss *StationSchema) GetArriveTime() (hr int, min int) {
+	arr := strings.Split(ss.Arrive, ":")
+	hr, _ = strconv.Atoi(arr[0])
+	min, _ = strconv.Atoi(arr[1])
+	return
+}
+
+// GetDepartTime GetDepartTime
+func (ss *StationSchema) GetDepartTime() (hr int, min int) {
+	arr := strings.Split(ss.Depart, ":")
+	hr, _ = strconv.Atoi(arr[0])
+	min, _ = strconv.Atoi(arr[1])
 	return
 }

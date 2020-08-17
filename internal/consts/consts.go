@@ -62,24 +62,26 @@ const (
 	Stops       = "Stops"
 
 	CheckboxOn = "on"
-	Monday     = "Monday"
-	Tuesday    = "Tuesday"
-	Wednesday  = "Wednesday"
-	Thursday   = "Thursday"
-	Friday     = "Friday"
-	Saturday   = "Saturday"
-	Sunday     = "Sunday"
+	Monday     = "Mon"
+	Tuesday    = "Tue"
+	Wednesday  = "Wed"
+	Thursday   = "Thu"
+	Friday     = "Fri"
+	Saturday   = "Sat"
+	Sunday     = "Sun"
 
 	AvailPrefix = "ticket["
 	AvailClass  = "][class]"
 	AvailCount  = "][count]"
 	AvailFare   = "][fare]"
 
-	StopPrefix   = "stop["
-	StopPosition = "][position]"
-	StopStation  = "][station]"
-	StopArrival  = "][arrival]"
-	StopDepart   = "][departure]"
+	StopPrefix       = "stop["
+	StopPosition     = "][position]"
+	StopStation      = "][station]"
+	StopArrival      = "][arrival]"
+	StopDepart       = "][departure]"
+	StopArriveOffset = "][arriveOffset]"
+	StopDepartOffset = "][departOffset]"
 
 	OriginPos = 1
 	DestinPos = 99
@@ -87,6 +89,7 @@ const (
 
 // Chart fields
 const (
+	ID            = "_id"
 	TrainSchemaID = "trainschema_id"
 	Date          = "Date"
 	Availability  = "Availability"

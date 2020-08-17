@@ -27,8 +27,9 @@ func (cd *ChartDoc) AddChart() (success bool) {
 	logger.Enter.Println("AddChart()")
 	defer logger.Leave.Println("AddChart()")
 
+	hex, _ := primitive.ObjectIDFromHex(cd.TrainSchemaID)
 	bsonDoc := bson.M{
-		consts.TrainSchemaID: cd.TrainSchemaID,
+		consts.TrainSchemaID: hex,
 		consts.Date:          cd.Date,
 		consts.Availability:  cd.Availability,
 		consts.TicketIDs:     cd.TicketIDs,
@@ -81,21 +82,25 @@ func getChartDoc(result bson.M) (c ChartDoc, valid bool) {
 	defer logger.Leave.Println("getChartDoc()")
 	valid = true
 
-	c.TrainSchemaID = result[consts.TrainSchemaID].(primitive.ObjectID).String()
-	c.Date = result[consts.Date].(primitive.DateTime).Time()
-	c.ExpireAt = result[consts.ExpireAt].(primitive.DateTime).Time()
-	c.TrainNumber = int(result[consts.TrainNumber].(float64))
+	c.TrainSchemaID = result[consts.TrainSchemaID].(primitive.ObjectID).Hex()
+	c.Date = result[consts.Date].(primitive.DateTime).Time().In(time.UTC)
+	c.ExpireAt = result[consts.ExpireAt].(primitive.DateTime).Time().In(time.UTC)
+	c.TrainNumber = int(result[consts.TrainNumber].(int32))
 
 	if avail := result[consts.Availability]; avail != nil {
 		for _, val := range []interface{}(avail.(primitive.A)) {
 			c.Availability = append(c.Availability, val.(string))
 		}
+	} else {
+		valid = false
 	}
 
 	if tickt := result[consts.TicketIDs]; tickt != nil {
 		for _, val := range []interface{}(tickt.(primitive.A)) {
 			c.TicketIDs = append(c.TicketIDs, val.(string))
 		}
+	} else {
+		valid = false
 	}
 
 	return
