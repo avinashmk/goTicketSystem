@@ -3,6 +3,8 @@ package housekeeping
 import (
 	"time"
 
+	"github.com/avinashmk/goTicketSystem/internal/model"
+
 	"github.com/avinashmk/goTicketSystem/logger"
 )
 
@@ -32,6 +34,8 @@ func Init() (result bool) {
 	if result = initTickets(); !result {
 		logger.Err.Println("Unable to init and setup Tickets")
 	}
+
+	exportStationList()
 	return
 }
 
@@ -48,6 +52,19 @@ func Finalize() {
 		- Close Monitor Tickets db
 		- Close Monitor Charts db
 	*/
+}
+
+func exportStationList() {
+	logger.Enter.Println("exportStationList()")
+	defer logger.Leave.Println("exportStationList()")
+
+	for k := range stationsList {
+		s := model.Station{
+			Name:  k,
+			Value: k,
+		}
+		model.StationsList = append(model.StationsList, s)
+	}
 }
 
 // func setupChartsOpenDate() {

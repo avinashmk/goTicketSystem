@@ -92,6 +92,47 @@ func FindSchema(trainNumber int) (s SchemaDoc, err error) {
 	return
 }
 
+// FindMatchSchema FindMatchSchema
+func FindMatchSchema(from string, to string, day string) (sArr []SchemaDoc, err error) {
+	logger.Enter.Println("FindMatchSchema()")
+	defer logger.Leave.Println("FindMatchSchema()")
+
+	filter := bson.D{
+		{
+			Key:   consts.Frequency,
+			Value: day,
+		},
+		{
+			Key: consts.StopsDotName,
+			Value: bson.D{{
+				Key:   "$all",
+				Value: bson.A{from, to},
+			}},
+		},
+	}
+	cursor, err := schemaCollection.Find(context.TODO(), filter)
+	if err != nil {
+		logger.Err.Println(err)
+		return
+	}
+	var results []bson.M
+	if err = cursor.All(context.TODO(), &results); err != nil {
+		logger.Err.Println(err)
+		return
+	}
+
+	logger.Debug.Println("got schema docs: ", len(results))
+	for _, result := range results {
+		if s, valid := getSchemaDoc(result); valid {
+			sArr = append(sArr, s)
+		} else {
+			logger.Err.Println("Unable to convert bson.M to SchemaDoc")
+		}
+	}
+	// logger.Debug.Println("matched schema: ", sArr)
+	return
+}
+
 // GetAllSchema fetches trainSchema from db
 func GetAllSchema() (sArr []SchemaDoc, err error) {
 	logger.Enter.Println("GetAllSchema()")

@@ -75,17 +75,21 @@ func setupHandlers() {
 
 	fileServer := http.FileServer(http.Dir("./web/static"))
 	http.Handle("/", fileServer)
+
 	http.HandleFunc(consts.SignInFunc, handler.Signin)
 	http.HandleFunc(consts.SignUpFunc, handler.Signup)
 	http.HandleFunc(consts.SignOffFunc, handler.Signoff)
 
 	http.HandleFunc(consts.SearchTrainPostAction, handler.SearchTrain)
+	http.HandleFunc(consts.SearchTrainFormPostAction, handler.SearchTrainForm)
+
 	http.HandleFunc(consts.MakeReservPostAction, handler.MakeReservation)
 	http.HandleFunc(consts.CancelReservPostAction, handler.CancelReservation)
 	http.HandleFunc(consts.ViewReservPostAction, handler.ViewReservation)
 
-	http.HandleFunc(consts.AddTrainSchemaFormPostAction, handler.AddTrainSchemaForm)
 	http.HandleFunc(consts.AddTrainSchemaPostAction, handler.AddTrainSchema)
+	http.HandleFunc(consts.AddTrainSchemaFormPostAction, handler.AddTrainSchemaForm)
+
 	http.HandleFunc(consts.RemoveTrainSchemaPostAction, handler.RemoveTrainSchema)
 	http.HandleFunc(consts.ViewTrainSchemaPostAction, handler.ViewTrainSchema)
 	http.HandleFunc(consts.UpdateTrainSchemaPostAction, handler.UpdateTrainSchema)

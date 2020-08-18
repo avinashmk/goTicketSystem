@@ -30,6 +30,8 @@ func New(w http.ResponseWriter, g model.General) (s Session, alreadyActive bool)
 	logger.Enter.Println("NewSession()")
 	defer logger.Leave.Println("NewSession()")
 
+	// TODO: remove activeSessions once the session times out too!
+	// otherwise user won't be able to login post session timeout!
 	if _, alreadyActive = activeSessions[g.UserID]; alreadyActive {
 		return
 	}

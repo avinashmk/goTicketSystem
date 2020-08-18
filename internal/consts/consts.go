@@ -18,8 +18,10 @@ const (
 	SignUpFunc  = "/signup"
 	SignOffFunc = "/signoff"
 
-	SearchTrainPostAction = "/searchtrain"
-	SearchTrainOptionName = "Search Trains"
+	SearchTrainFormTemplate   = "./web/templates/searchtrain.html"
+	SearchTrainPostAction     = "/searchtrain"
+	SearchTrainFormPostAction = "/searchtrainform"
+	SearchTrainOptionName     = "Search Trains"
 
 	MakeReservPostAction = "/makereservation"
 	MakeReservOptionName = "Make a Reservation"
@@ -55,11 +57,14 @@ const (
 
 // Train Schema fields
 const (
-	TrainName   = "TrainName"
-	TrainNumber = "TrainNumber"
-	Frequency   = "Frequency"
-	Tickets     = "Tickets"
-	Stops       = "Stops"
+	TrainName    = "TrainName"
+	TrainNumber  = "TrainNumber"
+	Frequency    = "Frequency"
+	Tickets      = "Tickets"
+	Stops        = "Stops"
+	StopsDotName = "Stops.Name"
+	From         = "From"
+	To           = "To"
 
 	CheckboxOn = "on"
 	Monday     = "Mon"
@@ -85,6 +90,9 @@ const (
 
 	OriginPos = 1
 	DestinPos = 99
+
+	// Mon Jan 2 15:04:05 -0700 MST 2006
+	DateLayout = "2006-01-02"
 )
 
 // Chart fields

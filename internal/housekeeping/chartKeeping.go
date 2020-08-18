@@ -9,9 +9,13 @@ import (
 	"github.com/avinashmk/goTicketSystem/logger"
 )
 
+// TODO: these vars should need mutex if written after Program Init phase
 var (
 	// map of Weekday vs. list of train numbers on that day.
 	daySchema = make(map[string][]int)
+
+	// Stations List of stations, to keep unique list hence map
+	stationsList = make(map[string]byte)
 )
 
 func initCharts() bool {
@@ -116,6 +120,10 @@ func populateDaySchema(schemaList []store.SchemaDoc) {
 	for _, schema := range schemaList {
 		for _, day := range schema.Frequency {
 			daySchema[day] = append(daySchema[day], schema.TrainNumber)
+		}
+
+		for _, stop := range schema.Stops {
+			stationsList[stop.Name] = '0'
 		}
 	}
 	logger.Debug.Println("daySchema: %v", daySchema)
