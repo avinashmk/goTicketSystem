@@ -58,10 +58,10 @@ func initCharts() bool {
 	}
 
 	now := time.Now()
-	year, month, date := now.Date()
-	for dt := date; dt < date+5; dt++ {
+	for counter := range []int{1, 2, 3, 4, 5} {
+
 		// - For each of Dates,
-		timestamp := time.Date(year, month, dt, 0, 0, 0, 0, time.UTC)
+		timestamp := now.AddDate(0, 0, counter) // Prepare charts only from tomorrow for consistency.
 		day := timestamp.Weekday().String()[:3]
 		logger.Debug.Println("Iterating...", day, ": ", timestamp.String())
 
@@ -81,9 +81,8 @@ func initCharts() bool {
 					// logger.Debug.Println("timestamp.AddDate(0, 0, 1): ", timestamp.AddDate(0, 0, 1))
 
 					// - Verify if SchemaDoc+Date combo is present in TrainChartDocs
-					if trainNum == chart.TrainNumber &&
-						(chart.Date.Equal(timestamp) || chart.Date.After(timestamp)) &&
-						chart.Date.Before(timestamp.AddDate(0, 0, 1)) {
+					if (trainNum == chart.TrainNumber) &&
+						(timestamp.Format(consts.DateLayout) == chart.Date) {
 						f = true
 						logger.Debug.Println("Chart already exists for: ", trainNum, " Date: ", timestamp)
 						break
@@ -101,7 +100,7 @@ func initCharts() bool {
 				chartList = chartList[:len(chartList)-1]
 			} else {
 				// 	- If not, create new TrainChartDoc
-				if createChart(trainNum, timestamp) {
+				if createChart(trainNum, timestamp.Format(consts.DateLayout)) {
 					logger.Debug.Println("Created charts for Train: ", trainNum, " Date: ", timestamp)
 				} else {
 					logger.Err.Println("Failed to create charts for Train: ", trainNum, " Date: ", timestamp)
@@ -129,7 +128,7 @@ func populateDaySchema(schemaList []store.SchemaDoc) {
 	logger.Debug.Println("daySchema: %v", daySchema)
 }
 
-func createChart(trainNum int, date time.Time) bool {
+func createChart(trainNum int, date string) bool {
 	logger.Enter.Println("createChart()")
 	defer logger.Leave.Println("createChart()")
 
@@ -150,15 +149,14 @@ func createChart(trainNum int, date time.Time) bool {
 	return chartDoc.AddChart()
 }
 
-func getChartExpiry(d time.Time, stops []store.StationSchema) (t time.Time) {
+func getChartExpiry(date string, stops []store.StationSchema) (t time.Time) {
 	logger.Enter.Println("getChartExpiry()")
 	defer logger.Leave.Println("getChartExpiry()")
 
 	for _, stop := range stops {
 		if stop.Position == consts.DestinPos {
-			hr, min := stop.GetArriveTime()
-			yr, mon, dt := d.Date()
-			t = time.Date(yr, mon, dt+stop.ArriveOffset+1, hr, min, 0, 0, time.UTC)
+			arrival := stop.GetArriveTime(date)
+			t = arrival.AddDate(0, 0, 1)
 			break
 		}
 	}

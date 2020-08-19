@@ -78,6 +78,7 @@ func SearchTrainForm(w http.ResponseWriter, r *http.Request) {
 	} else {
 		populateResults(r, &templateData)
 	}
+	// logger.Debug.Println("Search Result data: ", t)
 	t.Execute(w, templateData)
 }
 
@@ -93,26 +94,61 @@ func validateSearchForm(r *http.Request) (msg string, valid bool) {
 func populateResults(r *http.Request, t *model.Search) {
 	logger.Enter.Println("populateResults()")
 	defer logger.Leave.Println("populateResults()")
-	t.Gen.Message = "I know..."
 	/*
 	 - get all train schema matching against from, to, date
 	 - get all train charts matching against train schema, date
 	 - put each of the charts into the search model template.
 	*/
-	from := r.PostFormValue(consts.From)
-	to := r.PostFormValue(consts.To)
+	t.From = r.PostFormValue(consts.From)
+	t.To = r.PostFormValue(consts.To)
 	date := r.PostFormValue(consts.Date)
 
-	_ = matchSchema(from, to, date)
+	results := getResults(t.From, t.To, date)
+	for _, r := range results {
+		t.AddResult(r)
+	}
 }
 
-func matchSchema(from string, to string, date string) (schema []store.SchemaDoc) {
-	logger.Enter.Println("matchSchema()")
-	defer logger.Leave.Println("matchSchema()")
+func getResults(from string, to string, date string) (rArr []model.Result) {
+	logger.Enter.Println("getResults()")
+	defer logger.Leave.Println("getResults()")
 
-	d, _ := time.Parse(consts.DateLayout, date)
-	day := d.Weekday().String()[:3]
+	tmpDate, _ := time.Parse(consts.DateLayout, date)
+	day := tmpDate.Weekday().String()[:3]
 
-	schema, _ = store.FindMatchSchema(from, to, day)
+	tempSchema, _ := store.FindMatchSchema(from, to, day)
+	for _, schema := range tempSchema {
+		var fromIndex int
+		var toIndex int
+		for stopIndex, stop := range schema.Stops {
+			if stop.Name == from {
+				fromIndex = stopIndex
+			} else if stop.Name == to {
+				toIndex = stopIndex
+			}
+		}
+
+		if schema.Stops[fromIndex].Position > schema.Stops[toIndex].Position {
+			continue
+		}
+
+		chart, err := store.FindChart(schema.TrainNumber, date)
+		if err != nil {
+			logger.Warn.Println("Unable to find charts for: ", schema.TrainNumber, " Date: ", date)
+			continue
+		}
+
+		fromTime := schema.Stops[fromIndex].GetDepartTime(date)
+		toTime := schema.Stops[toIndex].GetArriveTime(date)
+
+		var r model.Result
+		r.TrainNumber = schema.TrainNumber
+		r.TrainName = schema.TrainName
+		r.Availability = len(chart.Availability)
+		r.FromTime = fromTime.Format(consts.TimeLayout)
+		r.ToTime = toTime.Format(consts.TimeLayout)
+		r.JourneyTime = toTime.Sub(fromTime).String()
+		rArr = append(rArr, r)
+	}
 	return
 }

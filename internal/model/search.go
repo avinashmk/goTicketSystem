@@ -12,6 +12,8 @@ type Search struct {
 	MinDate          string // in the format "yyyy-mm-dd"
 	Results          []Result
 	AllowReservation string
+	From             string
+	To               string
 }
 
 // Station station
@@ -24,11 +26,9 @@ type Station struct {
 type Result struct {
 	TrainNumber  int
 	TrainName    string
-	From         string
 	FromTime     string
-	To           string
 	ToTime       string
-	JourneyTime  int
+	JourneyTime  string
 	Availability int
 }
 

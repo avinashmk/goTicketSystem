@@ -3,8 +3,7 @@ package store
 import (
 	"context"
 	"fmt"
-	"strconv"
-	"strings"
+	"time"
 
 	"github.com/avinashmk/goTicketSystem/internal/consts"
 	"github.com/avinashmk/goTicketSystem/logger"
@@ -187,17 +186,15 @@ func getSchemaDoc(result bson.M) (s SchemaDoc, valid bool) {
 }
 
 // GetArriveTime GetArriveTime
-func (ss *StationSchema) GetArriveTime() (hr int, min int) {
-	arr := strings.Split(ss.Arrive, ":")
-	hr, _ = strconv.Atoi(arr[0])
-	min, _ = strconv.Atoi(arr[1])
-	return
+func (ss *StationSchema) GetArriveTime(date string) time.Time {
+	str := date + " " + ss.Arrive
+	tmp, _ := time.Parse(consts.TimeLayout, str)
+	return tmp.AddDate(0, 0, ss.ArriveOffset)
 }
 
-// GetDepartTime GetDepartTime
-func (ss *StationSchema) GetDepartTime() (hr int, min int) {
-	arr := strings.Split(ss.Depart, ":")
-	hr, _ = strconv.Atoi(arr[0])
-	min, _ = strconv.Atoi(arr[1])
-	return
+// GetDepartTime GetArriGetDepartTimeveTime
+func (ss *StationSchema) GetDepartTime(date string) time.Time {
+	str := date + " " + ss.Depart
+	tmp, _ := time.Parse(consts.TimeLayout, str)
+	return tmp.AddDate(0, 0, ss.DepartOffset)
 }

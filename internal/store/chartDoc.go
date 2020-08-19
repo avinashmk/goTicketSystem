@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -15,7 +16,7 @@ import (
 // ChartDoc ChartDoc
 type ChartDoc struct {
 	TrainSchemaID string    `bson:"trainschema_id"`
-	Date          time.Time `bson:"Date"`
+	Date          string    `bson:"Date"`
 	Availability  []string  `bson:"Availability"`
 	TicketIDs     []string  `bson:"traintickets_id"`
 	ExpireAt      time.Time `bson:"expireAt"`
@@ -77,13 +78,46 @@ func GetAllCharts() (cArr []ChartDoc, err error) {
 	return
 }
 
+// FindChart fetches chart from db
+func FindChart(trainNum int, date string) (c ChartDoc, err error) {
+	logger.Enter.Println("FindCharts()")
+	defer logger.Leave.Println("FindCharts()")
+
+	var result bson.M
+	filter := bson.D{
+		{
+			Key:   consts.TrainNumber,
+			Value: trainNum,
+		},
+		{
+			Key:   consts.Date,
+			Value: date,
+		},
+	}
+	err = chartsCollection.FindOne(context.TODO(), filter).Decode(&result)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			logger.Debug.Println(err)
+		} else {
+			logger.Err.Println(err)
+		}
+	} else {
+		var valid bool
+		c, valid = getChartDoc(result)
+		if !valid {
+			err = errors.New("Unable to convert bson.M to ChartDoc")
+		}
+	}
+	return
+}
+
 func getChartDoc(result bson.M) (c ChartDoc, valid bool) {
 	logger.Enter.Println("getChartDoc()")
 	defer logger.Leave.Println("getChartDoc()")
 	valid = true
 
 	c.TrainSchemaID = result[consts.TrainSchemaID].(primitive.ObjectID).Hex()
-	c.Date = result[consts.Date].(primitive.DateTime).Time().In(time.UTC)
+	c.Date = result[consts.Date].(string)
 	c.ExpireAt = result[consts.ExpireAt].(primitive.DateTime).Time().In(time.UTC)
 	c.TrainNumber = int(result[consts.TrainNumber].(int32))
 

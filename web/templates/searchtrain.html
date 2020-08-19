@@ -263,10 +263,8 @@
                                 <th class="tg-5log"> </th>
                                 <th class="tg-5log">Train Number </th>
                                 <th class="tg-5log">Train Name </th>
-                                <th class="tg-5log">From </th>
-                                <th class="tg-5log">Departure </th>
-                                <th class="tg-5log">To </th>
-                                <th class="tg-5log">Arrival </th>
+                                <th class="tg-5log">Departure ({{.From}}) </th>
+                                <th class="tg-5log">Arrival ({{.To}})</th>
                                 <th class="tg-5log">Journey Time </th>
                                 <th class="tg-5log">Availability </th>
                             </tr>
@@ -275,13 +273,12 @@
                             {{range .Results}}
                             <tr>
                                 <td class="tg-0lax">
-                                    <input type="radio" id="SearchResultSelection" name={{.Name}} value={{.Value}}>
+                                    <input type="radio" id="SearchResultSelection" name="SearchResultSelection"
+                                        value={{.TrainNumber}}>
                                 </td>
                                 <td class="tg-0lax">{{.TrainNumber}} </td>
                                 <td class="tg-0lax">{{.TrainName}} </td>
-                                <td class="tg-0lax">{{.From}} </td>
                                 <td class="tg-0lax">{{.FromTime}} </td>
-                                <td class="tg-0lax">{{.To}} </td>
                                 <td class="tg-0lax">{{.ToTime}} </td>
                                 <td class="tg-0lax">{{.JourneyTime}} </td>
                                 <td class="tg-0lax">{{.Availability}} </td>
