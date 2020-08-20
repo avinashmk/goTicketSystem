@@ -38,6 +38,7 @@ func New(w http.ResponseWriter, g model.General) (s Session, alreadyActive bool)
 			// request came in when previous session is not expired.
 			return
 		}
+		alreadyActive = false
 	} else {
 		s = Session{
 			Gen:        g,
