@@ -7,15 +7,7 @@ import (
 	"github.com/avinashmk/goTicketSystem/internal/consts"
 	"github.com/avinashmk/goTicketSystem/internal/store"
 	"github.com/avinashmk/goTicketSystem/logger"
-)
-
-// TODO: these vars should need mutex if written after Program Init phase
-var (
-	// map of Weekday vs. list of train numbers on that day.
-	daySchema = make(map[string][]int)
-
-	// Stations List of stations, to keep unique list hence map
-	stationsList = make(map[string]byte)
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func initCharts() bool {
@@ -33,10 +25,19 @@ func initCharts() bool {
 		return false
 	}
 
+	// Re-organize schema data as map[weekday] vs. List of *SchemaDoc
+	populateDaySchema(schemaList)
+
+	// Verify charts for tomorrow to tomorrow+5 days & create if not exists.
+	if !setupCharts() {
+		return false
+	}
+
+	return true
+}
+
+func setupCharts() bool {
 	/*
-		- re-organize schema data as map[weekday] vs. List of *SchemaDoc
-		- create a list of Dates in range[today, today + 5days]
-		- Get all TrainChartDocs
 		- For each of Dates,
 			- get List of *SchemaDoc for weekday in Date
 			- For each of SchemaDoc
@@ -45,19 +46,7 @@ func initCharts() bool {
 					- If not, create new TrainChartDoc
 	*/
 
-	// - re-organize schema data as map[weekday] vs. List of *SchemaDoc
-	populateDaySchema(schemaList)
-
-	// - create a list of Dates in range[today, today + 5days]
-
-	// - Get all TrainChartDocs
-	chartList, err := store.GetAllCharts()
-	if err != nil {
-		logger.Err.Println("Unable to fetch charts!")
-		return false
-	}
-
-	now := time.Now()
+	now := time.Now().UTC()
 	for counter := range []int{1, 2, 3, 4, 5} {
 
 		// - For each of Dates,
@@ -68,43 +57,10 @@ func initCharts() bool {
 		// - get List of *SchemaDoc for weekday in Date
 		for _, trainNum := range daySchema[day] {
 
-			// - For each of SchemaDoc
-			foundIndex, found := func() (index int, f bool) {
-				f = false
-				var chart store.ChartDoc
-				for index, chart = range chartList {
-
-					// logger.Debug.Println("trainNum: ", trainNum)
-					// logger.Debug.Println("chart.TrainNumber: ", chart.TrainNumber)
-					// logger.Debug.Println("chart.Date: ", chart.Date)
-					// logger.Debug.Println("timestamp: ", timestamp)
-					// logger.Debug.Println("timestamp.AddDate(0, 0, 1): ", timestamp.AddDate(0, 0, 1))
-
-					// - Verify if SchemaDoc+Date combo is present in TrainChartDocs
-					if (trainNum == chart.TrainNumber) &&
-						(timestamp.Format(consts.DateLayout) == chart.Date) {
-						f = true
-						logger.Debug.Println("Chart already exists for: ", trainNum, " Date: ", timestamp)
-						break
-					} else {
-						// logger.Debug.Println("Chart deemed mismatch")
-					}
-				}
-				return
-			}()
-
-			if found {
-				// - If exists, remove that combo from TrainChartDoc
-				chartList[foundIndex] = chartList[len(chartList)-1]
-				chartList[len(chartList)-1] = store.ChartDoc{} // really needed?
-				chartList = chartList[:len(chartList)-1]
+			if createChart(trainNum, timestamp.Format(consts.DateLayout)) {
+				logger.Debug.Println("Created charts for Train: ", trainNum, " Date: ", timestamp)
 			} else {
-				// 	- If not, create new TrainChartDoc
-				if createChart(trainNum, timestamp.Format(consts.DateLayout)) {
-					logger.Debug.Println("Created charts for Train: ", trainNum, " Date: ", timestamp)
-				} else {
-					logger.Err.Println("Failed to create charts for Train: ", trainNum, " Date: ", timestamp)
-				}
+				logger.Warn.Println("Charts NOT created for Train: ", trainNum, " Date: ", timestamp)
 			}
 		}
 	}
@@ -128,9 +84,65 @@ func populateDaySchema(schemaList []store.SchemaDoc) {
 	logger.Debug.Println("daySchema: %v", daySchema)
 }
 
+func createFutureCharts(today time.Time) {
+	logger.Enter.Println("createFutureCharts()")
+	defer logger.Leave.Println("createFutureCharts()")
+
+	futureDate := today.AddDate(0, 0, 5)
+	futureDay := futureDate.Weekday().String()[:3]
+	for _, trainNum := range daySchema[futureDay] {
+		if createChart(trainNum, futureDate.Format(consts.DateLayout)) {
+			logger.Debug.Println("Created charts for Train: ", trainNum, " Date: ", futureDate)
+		} else {
+			logger.Warn.Println("Charts NOT created for Train: ", trainNum, " Date: ", futureDate)
+		}
+	}
+}
+
+func handleNewSchema(schema store.SchemaDoc) {
+	logger.Enter.Println("handleNewSchema()")
+	defer logger.Leave.Println("handleNewSchema()")
+
+	for _, day := range schema.Frequency {
+		daySchema[day] = append(daySchema[day], schema.TrainNumber)
+	}
+
+	now := time.Now().UTC()
+	for counter := range []int{1, 2, 3, 4, 5} {
+		timestamp := now.AddDate(0, 0, counter) // Prepare charts only from tomorrow for consistency.
+		for _, day := range schema.Frequency {
+			if day == timestamp.Weekday().String()[:3] {
+				if createChart(schema.TrainNumber, timestamp.Format(consts.DateLayout)) {
+					logger.Debug.Println("Created charts for Train: ", schema.TrainNumber, " Date: ", timestamp)
+				} else {
+					logger.Err.Println("Charts NOT created for Train: ", schema.TrainNumber, " Date: ", timestamp)
+				}
+				break
+			}
+		}
+	}
+
+	slMux.Lock()
+	for _, stop := range schema.Stops {
+		stationsList[stop.Name] = '0'
+	}
+	slMux.Unlock()
+}
+
 func createChart(trainNum int, date string) bool {
 	logger.Enter.Println("createChart()")
 	defer logger.Leave.Println("createChart()")
+
+	_, err := store.FindChart(trainNum, date)
+	if err != mongo.ErrNoDocuments {
+		if err == nil {
+			logger.Debug.Println("Charts already exist for ", trainNum, " date:", date)
+		} else {
+			logger.Err.Println("Unable to retrieve chart for ", trainNum, " date:", date)
+			logger.Err.Println("Error: ", err)
+		}
+		return false
+	}
 
 	schema, err := store.FindSchema(trainNum)
 	if err != nil {

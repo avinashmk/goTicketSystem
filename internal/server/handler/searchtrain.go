@@ -116,6 +116,9 @@ func getResults(from string, to string, date string) (rArr []model.Result) {
 	tmpDate, _ := time.Parse(consts.DateLayout, date)
 	day := tmpDate.Weekday().String()[:3]
 
+	// TODO:
+	// If 'from' departure is 'day+1' but 'Position(0)' departure is 'day',
+	// then we still get search results for 'day+1' when searching for 'day'.
 	tempSchema, _ := store.FindMatchSchema(from, to, day)
 	for _, schema := range tempSchema {
 		var fromIndex int
@@ -142,6 +145,7 @@ func getResults(from string, to string, date string) (rArr []model.Result) {
 		toTime := schema.Stops[toIndex].GetArriveTime(date)
 
 		var r model.Result
+		r.ChartID = chart.ID
 		r.TrainNumber = schema.TrainNumber
 		r.TrainName = schema.TrainName
 		r.Availability = len(chart.Availability)

@@ -15,6 +15,7 @@ import (
 
 // ChartDoc ChartDoc
 type ChartDoc struct {
+	ID            string    `bson:"_id"`
 	TrainSchemaID string    `bson:"trainschema_id"`
 	Date          string    `bson:"Date"`
 	Availability  []string  `bson:"Availability"`
@@ -116,6 +117,7 @@ func getChartDoc(result bson.M) (c ChartDoc, valid bool) {
 	defer logger.Leave.Println("getChartDoc()")
 	valid = true
 
+	c.ID = result[consts.ID].(primitive.ObjectID).Hex()
 	c.TrainSchemaID = result[consts.TrainSchemaID].(primitive.ObjectID).Hex()
 	c.Date = result[consts.Date].(string)
 	c.ExpireAt = result[consts.ExpireAt].(primitive.DateTime).Time().In(time.UTC)

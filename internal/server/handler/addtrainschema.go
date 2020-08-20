@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/avinashmk/goTicketSystem/internal/housekeeping"
+
 	"github.com/avinashmk/goTicketSystem/internal/consts"
 	"github.com/avinashmk/goTicketSystem/internal/model"
 	"github.com/avinashmk/goTicketSystem/internal/server/session"
@@ -83,6 +85,7 @@ func AddTrainSchemaForm(w http.ResponseWriter, r *http.Request) {
 	}
 	if sd.AddSchema() {
 		s.Gen.Message = "Train Schema added! Train ID: " + trainName + "_" + string(strconv.Itoa(trainNumber))
+		housekeeping.NewTrainSchema <- sd
 		t, err := template.ParseFiles("./web/templates/menu.html")
 		if err != nil {
 			logger.Err.Println("Unable to parse template ", err)

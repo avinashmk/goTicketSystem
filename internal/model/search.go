@@ -3,12 +3,14 @@ package model
 import (
 	"strconv"
 	"time"
+
+	"github.com/avinashmk/goTicketSystem/internal/housekeeping"
 )
 
 // Search search
 type Search struct {
 	Gen              General
-	Stations         []Station
+	Stations         []string
 	MinDate          string // in the format "yyyy-mm-dd"
 	Results          []Result
 	AllowReservation string
@@ -16,14 +18,9 @@ type Search struct {
 	To               string
 }
 
-// Station station
-type Station struct {
-	Name  string
-	Value string
-}
-
 // Result result
 type Result struct {
+	ChartID      string
 	TrainNumber  int
 	TrainName    string
 	FromTime     string
@@ -32,18 +29,13 @@ type Result struct {
 	Availability int
 }
 
-var (
-	// StationsList stations
-	StationsList []Station
-)
-
 // MakeSearch make search form page
 func MakeSearch(gen General) (s Search) {
-	yr, mon, dt := time.Now().Date()
+	yr, mon, dt := time.Now().UTC().Date()
 	minDate := strconv.Itoa(yr) + "-" + strconv.Itoa(int(mon)) + "-" + strconv.Itoa(dt+1)
 	s = Search{
 		Gen:              gen,
-		Stations:         StationsList,
+		Stations:         housekeeping.StationsList(),
 		MinDate:          minDate,
 		AllowReservation: "disabled",
 	}

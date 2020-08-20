@@ -41,7 +41,7 @@ func (il *ignoreLogger) Println(v ...interface{}) {
 
 // Init inits logger
 func Init() bool {
-	now := time.Now().Unix()
+	now := time.Now().UTC().Unix()
 	nowString := strconv.FormatInt(now, 10)
 	fileName = "logs/log_" + nowString + ".txt"
 	var err error

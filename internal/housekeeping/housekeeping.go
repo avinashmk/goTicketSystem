@@ -1,16 +1,25 @@
 package housekeeping
 
 import (
+	"sync"
 	"time"
 
-	"github.com/avinashmk/goTicketSystem/internal/model"
-
+	"github.com/avinashmk/goTicketSystem/internal/store"
 	"github.com/avinashmk/goTicketSystem/logger"
 )
 
 var (
-	chartsOpenDate time.Time
-	// stopChartsOpenDate chan bool
+	stopHousekeeping chan bool
+
+	// NewTrainSchema Channel through which new schema added would be notified to housekeeping.
+	NewTrainSchema chan store.SchemaDoc
+
+	// TODO: these vars should need mutex if written after Program Init phase
+	// map of Weekday vs. list of train numbers on that day.
+	daySchema = make(map[string][]int)
+	// Stations List of stations, to keep unique list hence map
+	stationsList = make(map[string]byte)
+	slMux        sync.Mutex
 )
 
 // Init inits
@@ -25,17 +34,19 @@ func Init() (result bool) {
 		- go Monitor Charts db
 		- go Monitor Tickets db
 	*/
-	// stopChartsOpenDate = make(chan bool)
-	// setupChartsOpenDate()
 
 	if result = initCharts(); !result {
 		logger.Err.Println("Unable to init and setup Charts")
 	}
+
 	if result = initTickets(); !result {
 		logger.Err.Println("Unable to init and setup Tickets")
 	}
 
-	exportStationList()
+	stopHousekeeping = make(chan bool)
+	NewTrainSchema = make(chan store.SchemaDoc)
+	startHousekeeping()
+
 	return
 }
 
@@ -44,27 +55,65 @@ func Finalize() {
 	logger.Enter.Println("Finalize()")
 	defer logger.Leave.Println("Finalize()")
 
-	// stopChartsOpenDate <- true
-	// <-stopChartsOpenDate
-	// logger.Debug.Println("Closed Charts Open Date")
-
-	/*
-		- Close Monitor Tickets db
-		- Close Monitor Charts db
-	*/
+	stopHousekeeping <- true
+	<-stopHousekeeping
+	logger.Debug.Println("Housekeeping stopped")
 }
 
-func exportStationList() {
-	logger.Enter.Println("exportStationList()")
-	defer logger.Leave.Println("exportStationList()")
+func startHousekeeping() {
+	logger.Enter.Println("startHousekeeping()")
+	defer logger.Leave.Println("startHousekeeping()")
 
-	for k := range stationsList {
-		s := model.Station{
-			Name:  k,
-			Value: k,
+	go func() {
+		yr, mon, dt := time.Now().UTC().Date()
+
+		// hr, min, _ := time.Now().UTC().Clock()                                                      // TEST
+		// tTest := time.Date(yr, mon, dt, hr, min+1, 0, 0, time.UTC)                                  // TEST
+		// dur := time.Until(tTest)                                                                    // TEST
+		// logger.Debug.Println("Timer set to: ", tTest.String(), " now: ", time.Now().UTC().String()) // TEST
+		dur := time.Until(time.Date(yr, mon, dt+1, 0, 1, 0, 0, time.UTC)) // ORIG
+
+		timer := time.NewTimer(dur)
+		for {
+			select {
+			case <-stopHousekeeping:
+				logger.Debug.Println("Stopping housekeeping...")
+				if !timer.Stop() {
+					<-timer.C
+				}
+				stopHousekeeping <- true
+				return
+
+			case <-timer.C:
+				logger.Debug.Println("Housekeeping Charts...")
+				now := time.Now().UTC()
+				yr, mon, dt := now.Date()
+
+				// hr, min, _ := time.Now().UTC().Clock()                               // TEST
+				// dur := time.Until(time.Date(yr, mon, dt, hr, min+1, 0, 0, time.UTC)) // TEST
+				dur := time.Until(time.Date(yr, mon, dt+1, 0, 1, 0, 0, time.UTC)) // ORIG
+
+				timer.Reset(dur)
+				createFutureCharts(now)
+
+			case schema := <-NewTrainSchema:
+				handleNewSchema(schema)
+			}
 		}
-		model.StationsList = append(model.StationsList, s)
+	}()
+}
+
+// StationsList gives all stations available
+func StationsList() (sl []string) {
+	logger.Enter.Println("StationsList()")
+	defer logger.Leave.Println("StationsList()")
+
+	slMux.Lock()
+	for k := range stationsList {
+		sl = append(sl, k)
 	}
+	slMux.Unlock()
+	return
 }
 
 // func setupChartsOpenDate() {

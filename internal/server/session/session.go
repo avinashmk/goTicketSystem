@@ -17,6 +17,7 @@ import (
 type Session struct {
 	Gen        model.General
 	tokenValue string
+	expiry     time.Time
 }
 
 var (
@@ -32,14 +33,18 @@ func New(w http.ResponseWriter, g model.General) (s Session, alreadyActive bool)
 
 	// TODO: remove activeSessions once the session times out too!
 	// otherwise user won't be able to login post session timeout!
-	if _, alreadyActive = activeSessions[g.UserID]; alreadyActive {
-		return
+	if s, alreadyActive = activeSessions[g.UserID]; alreadyActive {
+		if time.Now().UTC().Before(s.expiry) {
+			// request came in when previous session is not expired.
+			return
+		}
+	} else {
+		s = Session{
+			Gen:        g,
+			tokenValue: generateToken(g.UserID),
+		}
 	}
-
-	s = Session{
-		Gen:        g,
-		tokenValue: generateToken(g.UserID),
-	}
+	s.expiry = time.Now().UTC().Add(consts.CookieAge * time.Second)
 	s.setCookies(w)
 
 	asMux.Lock()
@@ -104,6 +109,7 @@ func (s *Session) Refresh(w http.ResponseWriter) (success bool) {
 	refreshSession := Session{
 		Gen:        s.Gen,
 		tokenValue: generateToken(s.Gen.UserID),
+		expiry:     time.Now().UTC().Add(consts.CookieAge * time.Second),
 	}
 	refreshSession.setCookies(w)
 
@@ -126,12 +132,12 @@ func (s *Session) Close(w http.ResponseWriter) {
 	http.SetCookie(w, &http.Cookie{
 		Name:    consts.SessionTokenCookie,
 		Value:   s.tokenValue,
-		Expires: time.Now().Add(1 * time.Second),
+		Expires: time.Now().UTC().Add(1 * time.Second),
 		MaxAge:  1,
 	})
 	http.SetCookie(w, &http.Cookie{
 		Name:    consts.UserIDCookie,
-		Expires: time.Now().Add(1 * time.Second),
+		Expires: time.Now().UTC().Add(1 * time.Second),
 		MaxAge:  1,
 	})
 }
@@ -140,18 +146,17 @@ func (s *Session) setCookies(w http.ResponseWriter) {
 	logger.Enter.Println("setCookies()")
 	defer logger.Leave.Println("setCookies()")
 
-	expiry := time.Now().Add(consts.CookieAge * time.Second)
 	http.SetCookie(w, &http.Cookie{
 		Name:     consts.SessionTokenCookie,
 		Value:    s.tokenValue,
-		Expires:  expiry,
+		Expires:  s.expiry,
 		MaxAge:   consts.CookieAge,
 		HttpOnly: true,
 	})
 	http.SetCookie(w, &http.Cookie{
 		Name:     consts.UserIDCookie,
 		Value:    s.Gen.UserID,
-		Expires:  expiry,
+		Expires:  s.expiry,
 		MaxAge:   consts.CookieAge,
 		HttpOnly: true,
 	})
@@ -162,7 +167,7 @@ func generateToken(userid string) string {
 	logger.Enter.Println("generateToken()")
 	defer logger.Leave.Println("generateToken()")
 
-	now := time.Now().String()
+	now := time.Now().UTC().String()
 	id := userid + now
 	hash, err := bcrypt.GenerateFromPassword([]byte(id), bcrypt.DefaultCost)
 	if err != nil {
